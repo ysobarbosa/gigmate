@@ -13,12 +13,11 @@
     </p>
   </div>
   @if (compatibility(); as c) {
-    <p
-      class="score"
-      [attr.aria-label]="'Compatibilidade ' + c.score + ' de 100'"
-    >
-      <strong>{{ c.score }}</strong>
-      <span>sintonia</span>
+    <!-- aria-label is not allowed on <p>: hidden text carries the meaning. -->
+    <p class="score">
+      <strong aria-hidden="true">{{ c.score }}</strong>
+      <span aria-hidden="true">sintonia</span>
+      <span class="visually-hidden">Compatibilidade {{ c.score }} de 100</span>
     </p>
   }
 </header>

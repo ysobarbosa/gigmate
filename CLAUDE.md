@@ -76,7 +76,14 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
    `ProfileDraft` plano ↔ `MusicianProfile`). Guards no app (`profile-guards.ts`): `/` exige
    perfil, `/boas-vindas` só sem perfil, `/perfil` só carrega. `DEMO_VIEWER` em Pinheiros
    arredondado (-23.57, -46.69).
-6. Matches: like mútuo, tela de matches, detalhe com amostras.
+6. Matches (concluída): domínio `contact.ts` (`normalizeContact`, `contactHref`,
+   `visibleContact`) e `samples.ts` (`samplePlatform`, `MAX_SAMPLES` 3, só https e hosts
+   conhecidos); `contact?`/`samples?` opcionais no perfil; `isFakeMusician`. `MatchesStore`
+   (recarrega a cada `load()`, mais recente primeiro, contato liberado pelo match). Assistente
+   com 6 passos (novo: "Contato e amostras"). UI: `SampleLinks`, `CONTACT_*`. Lib
+   `musicians/feature-matches` (`MatchesPage` em `/matches`, `MatchDetailPage` em
+   `/matches/:id` via `withComponentInputBinding`). Diálogo de match tem "Ver perfil e contato".
+   `.visually-hidden` global em `apps/gigmate/src/styles.scss`.
 7. PWA: instalável, offline básico.
 8. Opcional: Supabase + login, e2e Cypress, deploy.
 
@@ -123,6 +130,12 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
   select). Usar `<label for>` só com o texto e `aria-describedby` para dica/erro.
 - Foco/scroll depois de mudar estado: `afterNextRender(..., { injector })`, não `queueMicrotask`
   (no zoneless o render vem depois do microtask).
+- `aria-label` não vale em `span`/`p`/`div` sem papel: número visível `aria-hidden` + texto
+  `.visually-hidden`. O `read_page` não mostra nome de link com conteúdo composto (limitação).
+- Spec com `jest.useFakeTimers()`: `fixture.whenStable()` trava (timers não andam); usar
+  `await jest.runOnlyPendingTimersAsync()`.
+- Componente que injeta `Router` precisa de `provideRouter(...)` no spec, com as rotas para onde
+  ele navega (senão NG04002).
 - A usuária às vezes usa o app no preview ao mesmo tempo: ler o estado antes de limpar
   `localStorage` ou mexer em filtros.
 

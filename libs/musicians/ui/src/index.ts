@@ -1,4 +1,7 @@
 export {
+  CONTACT_LABELS,
+  CONTACT_OPTIONS,
+  SAMPLE_PLATFORM_LABELS,
   availabilitySummary,
   GENRE_LABELS,
   GENRE_OPTIONS,
@@ -15,6 +18,7 @@ export { Avatar } from './lib/avatar/avatar';
 export { AvailabilityGrid } from './lib/availability-grid/availability-grid';
 export { ChipSelect } from './lib/chip-select/chip-select';
 export { MusicianCard } from './lib/musician-card/musician-card';
+export { SampleLinks } from './lib/sample-links/sample-links';
 export { FLING_MS, Swipeable } from './lib/swipeable/swipeable';
 export {
   type SwipeDirection,

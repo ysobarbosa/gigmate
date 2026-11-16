@@ -34,6 +34,20 @@ export type {
   CompatibilityOptions,
 } from './lib/compatibility';
 export {
+  CONTACT_KINDS,
+  contactHref,
+  normalizeContact,
+  visibleContact,
+} from './lib/contact';
+export type { Contact, ContactKind } from './lib/contact';
+export {
+  MAX_SAMPLES,
+  parseSampleLines,
+  SAMPLE_PLATFORMS,
+  samplePlatform,
+} from './lib/samples';
+export type { SamplePlatform } from './lib/samples';
+export {
   NEIGHBORHOOD_NAMES,
   neighborhoodLocation,
   PROFILE_LIMITS,
@@ -49,5 +63,6 @@ export type { DeckFilters } from './lib/filters';
 export {
   DEFAULT_FAKE_SEED,
   generateFakeMusicians,
+  isFakeMusician,
 } from './lib/fake/fake-musicians';
 export type { FakeMusiciansOptions } from './lib/fake/fake-musicians';

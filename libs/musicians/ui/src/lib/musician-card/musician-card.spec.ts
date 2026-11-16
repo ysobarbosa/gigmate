@@ -79,8 +79,12 @@ describe('MusicianCard', () => {
 
   it('shows score, rounded distance and the reasons with one', () => {
     const { el, clean } = render(true);
-    expect(el.querySelector('.score')?.getAttribute('aria-label')).toMatch(
+    // The visible number is hidden from screen readers, which read this instead.
+    expect(clean(el.querySelector('.score .visually-hidden'))).toMatch(
       /^Compatibilidade \d+ de 100$/,
+    );
+    expect(el.querySelector('.score strong')?.getAttribute('aria-hidden')).toBe(
+      'true',
     );
     expect(clean(el.querySelector('.place'))).toBe('Bela Vista · ~4 km');
     const reasons = Array.from(el.querySelectorAll('.reason')).map((r) =>

@@ -38,6 +38,6 @@ describe('App', () => {
     const links = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll('nav a'),
     ).map((a) => a.textContent?.trim());
-    expect(links).toEqual(['Descobrir', 'Meu perfil']);
+    expect(links).toEqual(['Descobrir', 'Matches', 'Meu perfil']);
   });
 });

@@ -25,6 +25,9 @@
       ],
       "@gigmate/musicians/feature-profile": [
         "./libs/musicians/feature-profile/src/index.ts"
+      ],
+      "@gigmate/musicians/feature-matches": [
+        "./libs/musicians/feature-matches/src/index.ts"
       ]
     }
   },

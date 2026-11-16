@@ -43,6 +43,29 @@ describe('profile draft', () => {
     expect(profile.lookingFor).toEqual(['drums']);
   });
 
+  it('normalizes the contact and keeps only accepted sample links', () => {
+    const profile = profileFromDraft({
+      ...validDraft,
+      contactKind: 'whatsapp',
+      contactValue: '(11) 98765-4321',
+      samplesText: 'https://youtu.be/abc\n\nhttps://open.spotify.com/artist/1',
+    });
+    expect(profile.contact).toEqual({
+      kind: 'whatsapp',
+      value: '5511987654321',
+    });
+    expect(profile.samples).toEqual([
+      'https://youtu.be/abc',
+      'https://open.spotify.com/artist/1',
+    ]);
+  });
+
+  it('leaves contact and samples out when empty', () => {
+    const profile = profileFromDraft(validDraft);
+    expect('contact' in profile).toBe(false);
+    expect('samples' in profile).toBe(false);
+  });
+
   it('refuses an incomplete draft', () => {
     expect(() => profileFromDraft(emptyDraft())).toThrow(
       'Incomplete profile draft',
@@ -106,6 +129,50 @@ describe('profileSchema', () => {
     ]);
     model.update((d) => ({ ...d, mainInstrument: 'drums' }));
     expect(messages('secondInstrument')).toEqual([]);
+  });
+
+  it('accepts no contact at all, but not a value without a kind', () => {
+    expect(setup(validDraft).f.contactValue().valid()).toBe(true);
+    expect(
+      setup({ ...validDraft, contactValue: '@rafa' }).messages('contactValue'),
+    ).toEqual(['Escolha onde te encontrar.']);
+  });
+
+  it('checks the contact against its kind, and re-checks when the kind changes', () => {
+    const { model, messages } = setup({
+      ...validDraft,
+      contactKind: 'whatsapp',
+      contactValue: '@rafa',
+    });
+    expect(messages('contactValue')).toEqual([
+      'Use um celular com DDD, como (11) 98765-4321.',
+    ]);
+    model.update((d) => ({ ...d, contactKind: 'instagram' }));
+    expect(messages('contactValue')).toEqual([]);
+  });
+
+  it('accepts up to 3 known sample links and names the bad one', () => {
+    const youtube = 'https://youtu.be/abc';
+    expect(
+      setup({
+        ...validDraft,
+        samplesText: `${youtube}\n\n${youtube}`,
+      }).messages('samplesText'),
+    ).toEqual([]);
+    expect(
+      setup({
+        ...validDraft,
+        samplesText: [youtube, youtube, youtube, youtube].join('\n'),
+      }).messages('samplesText'),
+    ).toEqual(['Use até 3 links.']);
+    expect(
+      setup({
+        ...validDraft,
+        samplesText: `${youtube}\nhttp://exemplo.com`,
+      }).messages('samplesText'),
+    ).toEqual([
+      'Link não aceito: http://exemplo.com. Use https do YouTube, Spotify, SoundCloud, Instagram ou Bandcamp.',
+    ]);
   });
 
   it('assigns every validated field to exactly one step', () => {

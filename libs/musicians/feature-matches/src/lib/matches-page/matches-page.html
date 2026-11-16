@@ -1,0 +1,50 @@
+<h2>Seus matches</h2>
+
+@switch (store.status()) {
+  @case ('error') {
+    <div class="state">
+      <p>Não foi possível carregar seus matches.</p>
+      <button type="button" (click)="store.load()">Tentar de novo</button>
+    </div>
+  }
+  @case ('ready') {
+    @if (store.entries().length) {
+      <ul class="list">
+        @for (entry of store.entries(); track entry.profile.id) {
+          <li>
+            <a class="row" [routerLink]="['/matches', entry.profile.id]">
+              <gm-avatar [id]="entry.profile.id" [name]="entry.profile.name" />
+              <span class="who">
+                <strong>{{ entry.profile.name }}</strong>
+                <span>
+                  {{ instrument(entry.profile) }} ·
+                  {{ entry.profile.neighborhood }}
+                </span>
+                <small>Match em {{ date(entry.matchedAt) }}</small>
+              </span>
+              <!-- aria-label is ignored on a plain span: say it in hidden text. -->
+              <span class="score" aria-hidden="true">{{
+                entry.compatibility.score
+              }}</span>
+              <span class="visually-hidden"
+                >Compatibilidade {{ entry.compatibility.score }} de 100</span
+              >
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="state">
+        <p>Nenhum match ainda.</p>
+        <p class="muted">
+          Curta quem combina com você: se a pessoa curtir de volta, ela aparece
+          aqui.
+        </p>
+        <a class="button primary" routerLink="/">Descobrir músicos</a>
+      </div>
+    }
+  }
+  @default {
+    <p class="muted" aria-busy="true">Carregando seus matches...</p>
+  }
+}

@@ -31,5 +31,21 @@ export const appRoutes: Route[] = [
         (m) => m.ProfileEditorPage,
       ),
   },
+  {
+    path: 'matches',
+    title: 'Seus matches · Gigmate',
+    canActivate: [requireProfile],
+    loadComponent: () =>
+      import('@gigmate/musicians/feature-matches').then((m) => m.MatchesPage),
+  },
+  {
+    path: 'matches/:id',
+    title: 'Match · Gigmate',
+    canActivate: [requireProfile],
+    loadComponent: () =>
+      import('@gigmate/musicians/feature-matches').then(
+        (m) => m.MatchDetailPage,
+      ),
+  },
   { path: '**', redirectTo: '' },
 ];

@@ -1,3 +1,5 @@
+import type { Contact } from './contact';
+
 /**
  * Domain model for a musician profile.
  *
@@ -114,6 +116,13 @@ export interface MusicianProfile {
   readonly hasGear: boolean;
   readonly hasCar: boolean;
   readonly hasRehearsalSpace: boolean;
+  /**
+   * Optional so profiles saved before these fields existed stay valid.
+   * The contact is shown only to matches (`visibleContact`).
+   */
+  readonly contact?: Contact;
+  /** Up to `MAX_SAMPLES` links accepted by `samplePlatform`. */
+  readonly samples?: readonly string[];
 }
 
 export function mainInstrument(profile: MusicianProfile): Instrument {

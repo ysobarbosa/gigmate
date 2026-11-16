@@ -15,7 +15,7 @@ async function render(onboarded: boolean) {
 describe('ProfileEditorPage (onboarding)', () => {
   it('starts empty on step 1 and will not move on with missing answers', async () => {
     const { text, click, errors } = await render(false);
-    expect(text('.eyebrow')).toBe('Criar perfil · Passo 1 de 5');
+    expect(text('.eyebrow')).toBe('Criar perfil · Passo 1 de 6');
     expect(text('h2')).toBe('Sobre você');
 
     click('Próximo');
@@ -59,8 +59,24 @@ describe('ProfileEditorPage (onboarding)', () => {
 
     click('Sex à noite');
     click('Próximo');
+    expect(text('h2')).toBe('Contato e amostras');
+
+    choose('Contato', 'whatsapp');
+    expect(text('label[for="pf-contactValue"]')).toBe('WhatsApp');
+    type('WhatsApp', '123');
+    click('Próximo');
+    expect(errors()).toEqual(['Use um celular com DDD, como (11) 98765-4321.']);
+    type('WhatsApp', '(11) 98765-4321');
+    type('Amostras', 'https://youtu.be/abc');
+    click('Próximo');
     expect(text('h2')).toBe('Confira seu perfil');
     expect(text('gm-musician-card h2')).toBe('Rafa, 29');
+    expect(text('gm-sample-links a')).toBe(
+      'Ouvir no YouTube (abre em outra aba)',
+    );
+    expect(text('.body > p.hint:last-of-type')).toBe(
+      'Só seus matches veem: WhatsApp 5511987654321.',
+    );
 
     click('Começar a procurar');
     await fixture.whenStable();
@@ -76,6 +92,8 @@ describe('ProfileEditorPage (onboarding)', () => {
     expect(saved.genresPlayed).toEqual(['rock']);
     expect(saved.goals).toEqual(['jam']);
     expect(saved.availability).toEqual(['fri-night']);
+    expect(saved.contact).toEqual({ kind: 'whatsapp', value: '5511987654321' });
+    expect(saved.samples).toEqual(['https://youtu.be/abc']);
     expect(TestBed.inject(Router).url).toBe('/');
   });
 
@@ -143,7 +161,7 @@ describe('ProfileEditorPage (accessibility)', () => {
 describe('ProfileEditorPage (editing)', () => {
   it('starts from the saved profile and can be cancelled', async () => {
     const { text, el, has } = await render(true);
-    expect(text('.eyebrow')).toBe('Editar perfil · Passo 1 de 5');
+    expect(text('.eyebrow')).toBe('Editar perfil · Passo 1 de 6');
     expect(
       el.querySelector<HTMLInputElement>('input[type="text"]')!.value,
     ).toBe(DEMO_VIEWER.name);
@@ -153,7 +171,7 @@ describe('ProfileEditorPage (editing)', () => {
   it('saves changes over the existing profile', async () => {
     const { fixture, click, type } = await render(true);
     type('Nome', 'Você mesmo');
-    for (let i = 0; i < 4; i++) click('Próximo');
+    for (let i = 0; i < 5; i++) click('Próximo');
     click('Salvar perfil');
     await fixture.whenStable();
     expect(TestBed.inject(ViewerStore).viewer()).toEqual({

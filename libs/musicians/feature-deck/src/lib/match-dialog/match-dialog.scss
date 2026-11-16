@@ -39,8 +39,14 @@ p {
   margin: 0;
 }
 
-button {
+.actions {
+  display: grid;
+  gap: 0.6rem;
+  width: 100%;
   margin-top: 0.75rem;
+}
+
+button {
   min-height: 2.75rem;
   padding: 0.5rem 1.25rem;
   border: 0;
@@ -54,5 +60,12 @@ button {
   &:focus-visible {
     outline: 2px solid var(--gm-text);
     outline-offset: 3px;
+  }
+
+  &.secondary {
+    border: 1px solid var(--gm-border);
+    background: transparent;
+    color: var(--gm-text);
+    font-weight: 400;
   }
 }

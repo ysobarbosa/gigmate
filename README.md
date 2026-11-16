@@ -73,6 +73,13 @@ npx nx run-many -t build,test,lint
   arredondado. Não pede permissão de localização e nunca sabe onde a pessoa mora.
 - **Primeira visita.** Sem perfil, o app abre as boas-vindas: criar um perfil ou explorar na
   hora com um perfil de exemplo. Guards de rota decidem para onde cada um vai.
+- **Contato só depois do match.** Cada perfil pode mostrar WhatsApp, Instagram ou e-mail
+  (validados e normalizados no domínio), e só quem deu match vê. A regra vive no domínio
+  (`visibleContact`), e a porta documenta que um backend real nem deve enviar o contato antes.
+- **Amostras seguras.** Até 3 links `https` de YouTube, Spotify, SoundCloud, Instagram ou
+  Bandcamp. A lista fechada de hosts barra `javascript:` e domínios parecidos, e a tela revalida
+  cada link antes de exibir. Perfis fictícios não têm contato nem amostras de verdade, para não
+  apontar para pessoas ou vídeos reais; a tela explica isso.
 
 ## Progresso
 
@@ -81,6 +88,6 @@ npx nx run-many -t build,test,lint
 - [x] Camada de dados local com Signals
 - [x] Deck com swipe, filtros e ordem por compatibilidade
 - [x] Perfil e onboarding
-- [ ] Matches
+- [x] Matches: lista, detalhe com contato e amostras
 - [ ] PWA
 - [ ] Extras: backend real, e2e, deploy

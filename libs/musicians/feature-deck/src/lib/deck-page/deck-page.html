@@ -142,5 +142,9 @@
 }
 
 @if (store.lastMatch(); as match) {
-  <gm-match-dialog [match]="match" (closed)="store.dismissMatch()" />
+  <gm-match-dialog
+    [match]="match"
+    (closed)="store.dismissMatch()"
+    (viewProfile)="openMatch(match.id)"
+  />
 }

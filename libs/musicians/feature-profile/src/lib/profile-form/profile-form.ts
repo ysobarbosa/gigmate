@@ -7,10 +7,23 @@ import {
   schema,
   validate,
 } from '@angular/forms/signals';
-import { PROFILE_LIMITS } from '@gigmate/musicians/domain';
+import {
+  type ContactKind,
+  MAX_SAMPLES,
+  normalizeContact,
+  parseSampleLines,
+  PROFILE_LIMITS,
+  samplePlatform,
+} from '@gigmate/musicians/domain';
 import type { ProfileDraft } from './profile-draft';
 
 const { nameMaxLength, bioMaxLength, minAge, maxAge } = PROFILE_LIMITS;
+
+const CONTACT_ERRORS: Record<ContactKind, string> = {
+  whatsapp: 'Use um celular com DDD, como (11) 98765-4321.',
+  instagram: 'Use só letras, números, ponto e _, como @seu.perfil.',
+  email: 'Confira o e-mail, como nome@exemplo.com.',
+};
 
 /** Validation rules for the profile form (Signal Forms schema). */
 export const profileSchema = schema<ProfileDraft>((p) => {
@@ -50,6 +63,39 @@ export const profileSchema = schema<ProfileDraft>((p) => {
   minLength(p.availability, 1, {
     message: 'Marque pelo menos um horário livre.',
   });
+
+  // Contact is optional, but the value must match the chosen kind.
+  validate(p.contactValue, ({ value, valueOf }) => {
+    const kind = valueOf(p.contactKind);
+    if (!kind) {
+      return value().trim()
+        ? { kind: 'contactKind', message: 'Escolha onde te encontrar.' }
+        : undefined;
+    }
+    if (!value().trim()) {
+      return {
+        kind: 'required',
+        message: 'Preencha o contato ou escolha "Não mostrar".',
+      };
+    }
+    return normalizeContact(kind, value())
+      ? undefined
+      : { kind: 'contact', message: CONTACT_ERRORS[kind] };
+  });
+
+  validate(p.samplesText, ({ value }) => {
+    const lines = parseSampleLines(value());
+    if (lines.length > MAX_SAMPLES) {
+      return { kind: 'tooMany', message: `Use até ${MAX_SAMPLES} links.` };
+    }
+    const bad = lines.find((line) => samplePlatform(line) === null);
+    return bad
+      ? {
+          kind: 'sample',
+          message: `Link não aceito: ${bad}. Use https do YouTube, Spotify, SoundCloud, Instagram ou Bandcamp.`,
+        }
+      : undefined;
+  });
 });
 
 export type ProfileField = keyof ProfileDraft;
@@ -76,6 +122,10 @@ export const PROFILE_STEPS: readonly ProfileStep[] = [
   {
     title: 'Agenda e estrutura',
     fields: ['availability', 'hasGear', 'hasCar', 'hasRehearsalSpace'],
+  },
+  {
+    title: 'Contato e amostras',
+    fields: ['contactKind', 'contactValue', 'samplesText'],
   },
   { title: 'Confira seu perfil', fields: [] },
 ];

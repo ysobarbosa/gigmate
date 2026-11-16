@@ -26,9 +26,14 @@ import { Avatar, INSTRUMENT_LABELS } from '@gigmate/musicians/ui';
       <p id="match-text">
         {{ match().name }} ({{ instrument() }}) também curtiu você.
       </p>
-      <button type="button" (click)="closed.emit()">
-        Continuar procurando
-      </button>
+      <div class="actions">
+        <button type="button" (click)="viewProfile.emit()">
+          Ver perfil e contato
+        </button>
+        <button type="button" class="secondary" (click)="closed.emit()">
+          Continuar procurando
+        </button>
+      </div>
     </section>
   `,
   styleUrl: './match-dialog.scss',
@@ -37,6 +42,7 @@ import { Avatar, INSTRUMENT_LABELS } from '@gigmate/musicians/ui';
 export class MatchDialog {
   readonly match = input.required<MusicianProfile>();
   readonly closed = output<void>();
+  readonly viewProfile = output<void>();
 
   protected instrument(): string {
     return INSTRUMENT_LABELS[

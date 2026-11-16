@@ -246,10 +246,78 @@
       </fieldset>
     }
 
+    @case (4) {
+      <p class="hint">
+        Seu contato só aparece para quem deu match com você. Tudo aqui é
+        opcional.
+      </p>
+
+      <div class="pair">
+        <div class="field">
+          <label for="pf-contactKind">Contato</label>
+          <select id="pf-contactKind" [formField]="form.contactKind">
+            <option value="">Não mostrar</option>
+            @for (option of contactOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="pf-contactValue">{{ contactValueLabel() }}</label>
+          <input
+            id="pf-contactValue"
+            type="text"
+            [attr.inputmode]="model().contactKind === 'whatsapp' ? 'tel' : null"
+            [attr.placeholder]="contactPlaceholder()"
+            [formField]="form.contactValue"
+            [attr.aria-invalid]="invalid('contactValue')"
+            [attr.aria-describedby]="describedBy('contactValue')"
+          />
+        </div>
+      </div>
+      @if (errorsOf('contactValue').length) {
+        <small id="pf-contactValue-error" class="field-error">{{
+          errorsOf('contactValue').join(' ')
+        }}</small>
+      }
+
+      <div class="field">
+        <label for="pf-samplesText"
+          >Amostras (até {{ maxSamples }} links)</label
+        >
+        <textarea
+          id="pf-samplesText"
+          rows="3"
+          placeholder="https://youtu.be/..."
+          [formField]="form.samplesText"
+          [attr.aria-invalid]="invalid('samplesText')"
+          [attr.aria-describedby]="describedBy('samplesText', true)"
+        ></textarea>
+        <small id="pf-samplesText-hint" class="hint">
+          Um link por linha: YouTube, Spotify, SoundCloud, Instagram ou
+          Bandcamp.
+        </small>
+        @if (errorsOf('samplesText').length) {
+          <small id="pf-samplesText-error" class="field-error">{{
+            errorsOf('samplesText').join(' ')
+          }}</small>
+        }
+      </div>
+    }
+
     @default {
       @if (preview(); as profile) {
         <p class="hint">É assim que os outros músicos vão ver você.</p>
         <gm-musician-card [profile]="profile" />
+        <gm-sample-links [samples]="profile.samples ?? []" />
+        <p class="hint">
+          @if (profile.contact; as contact) {
+            Só seus matches veem: {{ contactLabels[contact.kind] }}
+            {{ contact.value }}.
+          } @else {
+            Sem contato: seus matches vão ver só o seu perfil.
+          }
+        </p>
       }
       @if (saveFailed()) {
         <p class="field-error" role="alert">

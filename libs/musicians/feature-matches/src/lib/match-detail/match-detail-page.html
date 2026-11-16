@@ -1,0 +1,57 @@
+<a class="back" routerLink="/matches">← Seus matches</a>
+
+@switch (store.status()) {
+  @case ('ready') {
+    @if (entry(); as e) {
+      <p class="since">Vocês deram match em {{ date(e.matchedAt) }}.</p>
+      <gm-musician-card
+        [profile]="e.profile"
+        [compatibility]="e.compatibility"
+      />
+
+      <section aria-labelledby="contact-title">
+        <h2 id="contact-title">Contato</h2>
+        @if (contactLink(); as link) {
+          <a
+            class="button primary"
+            [href]="link.href"
+            [attr.target]="link.external ? '_blank' : null"
+            [attr.rel]="link.external ? 'noopener noreferrer' : null"
+            >{{ link.label }}</a
+          >
+        } @else if (isFake()) {
+          <p class="muted">
+            Este é um perfil fictício da demonstração. Num perfil real, aqui
+            aparece o WhatsApp, o Instagram ou o e-mail que a pessoa escolheu
+            mostrar para quem deu match.
+          </p>
+        } @else {
+          <p class="muted">Essa pessoa não compartilhou um contato.</p>
+        }
+      </section>
+
+      <section aria-labelledby="samples-title">
+        <h2 id="samples-title">Amostras</h2>
+        @if (e.profile.samples?.length) {
+          <gm-sample-links [samples]="e.profile.samples" />
+        } @else {
+          <p class="muted">Sem amostras ainda.</p>
+        }
+      </section>
+    } @else {
+      <div class="state">
+        <p>Match não encontrado.</p>
+        <p class="muted">Ele pode ter sido desfeito ou o link está errado.</p>
+      </div>
+    }
+  }
+  @case ('error') {
+    <div class="state">
+      <p>Não foi possível carregar este match.</p>
+      <button type="button" (click)="store.load()">Tentar de novo</button>
+    </div>
+  }
+  @default {
+    <p class="muted" aria-busy="true">Carregando...</p>
+  }
+}

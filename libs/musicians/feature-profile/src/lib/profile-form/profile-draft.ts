@@ -1,11 +1,16 @@
 import {
   type AvailabilitySlot,
+  type ContactKind,
   type Genre,
   type Goal,
   type Instrument,
   type InstrumentSkill,
+  MAX_SAMPLES,
   type MusicianProfile,
   neighborhoodLocation,
+  normalizeContact,
+  parseSampleLines,
+  samplePlatform,
   type SkillLevel,
 } from '@gigmate/musicians/domain';
 
@@ -31,6 +36,10 @@ export interface ProfileDraft {
   hasGear: boolean;
   hasCar: boolean;
   hasRehearsalSpace: boolean;
+  contactKind: ContactKind | '';
+  contactValue: string;
+  /** One sample link per line (a textarea is simpler than a dynamic list). */
+  samplesText: string;
 }
 
 export function emptyDraft(): ProfileDraft {
@@ -51,6 +60,9 @@ export function emptyDraft(): ProfileDraft {
     hasGear: false,
     hasCar: false,
     hasRehearsalSpace: false,
+    contactKind: '',
+    contactValue: '',
+    samplesText: '',
   };
 }
 
@@ -73,6 +85,9 @@ export function draftFromProfile(profile: MusicianProfile): ProfileDraft {
     hasGear: profile.hasGear,
     hasCar: profile.hasCar,
     hasRehearsalSpace: profile.hasRehearsalSpace,
+    contactKind: profile.contact?.kind ?? '',
+    contactValue: profile.contact?.value ?? '',
+    samplesText: (profile.samples ?? []).join('\n'),
   };
 }
 
@@ -101,6 +116,12 @@ export function profileFromDraft(
     });
   }
   const own = instruments.map((skill) => skill.instrument);
+  const contactValue = draft.contactKind
+    ? normalizeContact(draft.contactKind, draft.contactValue)
+    : null;
+  const samples = parseSampleLines(draft.samplesText).filter(
+    (line) => samplePlatform(line) !== null,
+  );
   return {
     id,
     name: draft.name.trim(),
@@ -118,5 +139,10 @@ export function profileFromDraft(
     hasGear: draft.hasGear,
     hasCar: draft.hasCar,
     hasRehearsalSpace: draft.hasRehearsalSpace,
+    // Optional fields are left out (not `undefined`) when empty.
+    ...(draft.contactKind && contactValue
+      ? { contact: { kind: draft.contactKind, value: contactValue } }
+      : {}),
+    ...(samples.length ? { samples: samples.slice(0, MAX_SAMPLES) } : {}),
   };
 }

@@ -1,4 +1,7 @@
 import {
+  CONTACT_KINDS,
+  type ContactKind,
+  type SamplePlatform,
   type AvailabilitySlot,
   type Genre,
   GENRES,
@@ -94,6 +97,21 @@ const toOptions = <T extends string>(
 ): readonly Option<T>[] =>
   values.map((value) => ({ value, label: labels[value] }));
 
+export const CONTACT_LABELS: Record<ContactKind, string> = {
+  whatsapp: 'WhatsApp',
+  instagram: 'Instagram',
+  email: 'E-mail',
+};
+
+export const SAMPLE_PLATFORM_LABELS: Record<SamplePlatform, string> = {
+  youtube: 'YouTube',
+  spotify: 'Spotify',
+  soundcloud: 'SoundCloud',
+  instagram: 'Instagram',
+  bandcamp: 'Bandcamp',
+};
+
+export const CONTACT_OPTIONS = toOptions(CONTACT_KINDS, CONTACT_LABELS);
 export const INSTRUMENT_OPTIONS = toOptions(INSTRUMENTS, INSTRUMENT_LABELS);
 export const GENRE_OPTIONS = toOptions(GENRES, GENRE_LABELS);
 export const GOAL_OPTIONS = toOptions(GOALS, GOAL_LABELS);

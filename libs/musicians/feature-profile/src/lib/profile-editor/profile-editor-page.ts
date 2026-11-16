@@ -12,6 +12,8 @@ import { form, FormField } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { ViewerStore } from '@gigmate/musicians/data-access';
 import {
+  type ContactKind,
+  MAX_SAMPLES,
   NEIGHBORHOOD_NAMES,
   PROFILE_LIMITS,
   SKILL_LEVELS,
@@ -19,11 +21,14 @@ import {
 import {
   AvailabilityGrid,
   ChipSelect,
+  CONTACT_LABELS,
+  CONTACT_OPTIONS,
   GENRE_OPTIONS,
   GOAL_OPTIONS,
   INSTRUMENT_OPTIONS,
   LEVEL_LABELS,
   MusicianCard,
+  SampleLinks,
 } from '@gigmate/musicians/ui';
 import {
   draftFromProfile,
@@ -43,7 +48,14 @@ import {
  */
 @Component({
   selector: 'gm-profile-editor-page',
-  imports: [FormField, RouterLink, ChipSelect, AvailabilityGrid, MusicianCard],
+  imports: [
+    FormField,
+    RouterLink,
+    ChipSelect,
+    AvailabilityGrid,
+    MusicianCard,
+    SampleLinks,
+  ],
   templateUrl: './profile-editor-page.html',
   styleUrl: './profile-editor-page.scss',
 })
@@ -91,6 +103,26 @@ export class ProfileEditorPage {
   }));
   protected readonly neighborhoods = NEIGHBORHOOD_NAMES;
   protected readonly limits = PROFILE_LIMITS;
+  protected readonly maxSamples = MAX_SAMPLES;
+  protected readonly contactOptions = CONTACT_OPTIONS;
+  protected readonly contactLabels = CONTACT_LABELS;
+
+  private static readonly PLACEHOLDERS: Record<ContactKind, string> = {
+    whatsapp: '(11) 98765-4321',
+    instagram: '@seu.perfil',
+    email: 'nome@exemplo.com',
+  };
+
+  /** The value field is labelled after the chosen kind ("WhatsApp", ...). */
+  protected readonly contactValueLabel = computed(() => {
+    const kind = this.model().contactKind;
+    return kind ? CONTACT_LABELS[kind] : 'Contato (escolha o tipo)';
+  });
+
+  protected readonly contactPlaceholder = computed(() => {
+    const kind = this.model().contactKind;
+    return kind ? ProfileEditorPage.PLACEHOLDERS[kind] : null;
+  });
 
   protected state(field: ProfileField) {
     return this.form[field]();

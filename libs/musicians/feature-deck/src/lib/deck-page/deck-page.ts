@@ -6,6 +6,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { DeckStore } from '@gigmate/musicians/data-access';
 import type { DeckFilters } from '@gigmate/musicians/domain';
 import {
@@ -26,6 +27,7 @@ import { MatchDialog } from '../match-dialog/match-dialog';
 })
 export class DeckPage implements OnInit {
   protected readonly store = inject(DeckStore);
+  private readonly router = inject(Router);
   protected readonly filtersOpen = signal(false);
 
   /** The top card as a one-item list: `@for ... track id` gives each card a fresh swipeable. */
@@ -65,6 +67,12 @@ export class DeckPage implements OnInit {
   protected decide(id: string, direction: SwipeDirection): void {
     if (direction === 'like') this.store.like(id);
     else this.store.pass(id);
+  }
+
+  /** From the match dialog straight to the match's profile and contact. */
+  protected openMatch(id: string): void {
+    this.store.dismissMatch();
+    void this.router.navigate(['/matches', id]);
   }
 
   protected updateFilters(filters: DeckFilters): void {

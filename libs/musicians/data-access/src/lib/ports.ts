@@ -34,7 +34,11 @@ export abstract class ProfilesRepository {
   /** The signed-in musician, or null before onboarding. */
   abstract getViewer(): Observable<MusicianProfile | null>;
   abstract saveViewer(profile: MusicianProfile): Observable<void>;
-  /** Everyone who can appear in the deck. Filtering and ranking happen in the store. */
+  /**
+   * Everyone who can appear in the deck. Filtering and ranking happen in the store.
+   * A real backend must omit `contact` here for anyone the viewer has not
+   * matched: hiding it in the UI is not enough when the data reaches the browser.
+   */
   abstract listCandidates(): Observable<readonly MusicianProfile[]>;
 }
 

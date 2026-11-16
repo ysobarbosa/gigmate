@@ -30,6 +30,13 @@ export interface FakeMusiciansOptions {
 
 export const DEFAULT_FAKE_SEED = 42;
 
+const FAKE_ID_PREFIX = 'fake-';
+
+/** Fake profiles share no contact or samples; the UI says so instead of a blank. */
+export function isFakeMusician(profile: { readonly id: string }): boolean {
+  return profile.id.startsWith(FAKE_ID_PREFIX);
+}
+
 /**
  * Generates plausible, reproducible fake musicians around São Paulo.
  * Same options, same output: profiles are generated at runtime instead of
@@ -52,7 +59,7 @@ function fakeMusician(random: Random, index: number): MusicianProfile {
   const scene = random.pick(SCENES);
   const genresPlayed = random.sample(scene, random.int(2, 3));
   return {
-    id: `fake-${String(index + 1).padStart(3, '0')}`,
+    id: `${FAKE_ID_PREFIX}${String(index + 1).padStart(3, '0')}`,
     name: `${random.pick(FIRST_NAMES)} ${random.pick(LAST_NAMES)}`,
     age: random.int(18, 55),
     bio: random.pick(BIOS),

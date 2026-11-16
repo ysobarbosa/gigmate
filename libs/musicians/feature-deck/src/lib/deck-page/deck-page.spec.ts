@@ -1,4 +1,6 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import {
   createMemoryStorage,
   DEMO_VIEWER,
@@ -12,12 +14,16 @@ import { wouldLikeBack } from '@gigmate/musicians/domain';
 import { FLING_MS } from '@gigmate/musicians/ui';
 import { DeckPage } from './deck-page';
 
+@Component({ template: '' })
+class Blank {}
+
 function setup() {
   TestBed.configureTestingModule({
     providers: [
       provideLocalMusiciansData(),
       { provide: KEY_VALUE_STORAGE, useValue: createMemoryStorage() },
       { provide: LOCAL_LATENCY_MS, useValue: 0 },
+      provideRouter([{ path: 'matches/:id', component: Blank }]),
     ],
   });
   // An onboarded user (latency 0 keeps the save synchronous).
@@ -85,9 +91,9 @@ describe('DeckPage', () => {
     expect(store.lastMatch()).toBeNull();
   });
 
-  it('likes with the right arrow key and celebrates a match', () => {
-    const { store, el, render, settle, text, click } = setup();
-    // Bring someone who likes back to the top of the deck.
+  /** Brings someone who likes back to the top of the deck and likes them. */
+  function matchSomeone(deck: ReturnType<typeof setup>) {
+    const { store, render, settle } = deck;
     store.setFilters({
       ...store.filters()!,
       instruments: [],
@@ -100,9 +106,25 @@ describe('DeckPage', () => {
       store.pass(store.current()!.profile.id);
     }
     render();
-
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     settle();
+    return target;
+  }
+
+  it('goes from the match dialog to the match profile', async () => {
+    const deck = setup();
+    const target = matchSomeone(deck);
+    deck.click('Ver perfil e contato');
+    // Fake timers are on (for the fling): whenStable() would wait forever.
+    await jest.runOnlyPendingTimersAsync();
+    expect(TestBed.inject(Router).url).toBe(`/matches/${target.profile.id}`);
+    expect(deck.store.lastMatch()).toBeNull();
+  });
+
+  it('likes with the right arrow key and celebrates a match', () => {
+    const deck = setup();
+    const { el, text, click } = deck;
+    const target = matchSomeone(deck);
 
     const dialog = el.querySelector('[role="dialog"]');
     expect(dialog?.getAttribute('aria-modal')).toBe('true');

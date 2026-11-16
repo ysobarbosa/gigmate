@@ -1,0 +1,10 @@
+{
+  "name": "musicians-feature-matches",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/musicians/feature-matches/src",
+  "prefix": "gm",
+  "projectType": "library",
+  "tags": ["scope:musicians", "type:feature"],
+  "// targets": "to see all targets run: nx show project musicians-feature-matches --web",
+  "targets": {}
+}
