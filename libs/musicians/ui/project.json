@@ -1,0 +1,10 @@
+{
+  "name": "musicians-ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/musicians/ui/src",
+  "prefix": "gm",
+  "projectType": "library",
+  "tags": ["scope:musicians", "type:ui"],
+  "// targets": "to see all targets run: nx show project musicians-ui --web",
+  "targets": {}
+}

@@ -18,6 +18,10 @@
       "@gigmate/musicians/domain": ["./libs/musicians/domain/src/index.ts"],
       "@gigmate/musicians/data-access": [
         "./libs/musicians/data-access/src/index.ts"
+      ],
+      "@gigmate/musicians/ui": ["./libs/musicians/ui/src/index.ts"],
+      "@gigmate/musicians/feature-deck": [
+        "./libs/musicians/feature-deck/src/index.ts"
       ]
     }
   },

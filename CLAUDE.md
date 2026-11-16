@@ -61,7 +61,12 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
    (`cards` ordenados por nota, swipe otimista, `lastMatch`). `DEMO_VIEWER`: guitarrista que
    procura baterista. Página temporária `apps/gigmate/src/app/deck/deck-page` (lista + botões).
    29 testes na lib; mutações `exhaustMap`→`mergeMap` e "sem rollback" pegas.
-4. Deck: swipe (pointer events), filtros, ordem por compatibilidade.
+4. Deck (concluída): `matchesFilters`/`defaultFilters` no domínio (raio padrão 10 km);
+   filtros no `DeckStore` (salvos em `gigmate:v1:filters`, mesclados com o padrão),
+   `hiddenByFilters`. Libs `musicians/ui` (`type:ui`: rótulos pt-BR, `Avatar`, `ChipSelect` com
+   `model()`, `MusicianCard`, diretiva `Swipeable` + `swipeOutcome`) e `musicians/feature-deck`
+   (`type:feature`: `DeckPage`, `FiltersPanel`, `MatchDialog`). Rota `''` faz lazy load da feature.
+   Tema em tokens `--gm-*` no `apps/gigmate/src/styles.scss` (escuro padrão, claro pelo sistema).
 5. Perfil e onboarding em etapas.
 6. Matches: like mútuo, tela de matches, detalhe com amostras.
 7. PWA: instalável, offline básico.
@@ -93,6 +98,13 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
   ("A project without tags matching at least one constraint...").
 - Testes zoneless: sem `fakeAsync`. Com `LOCAL_LATENCY_MS = 0` os adaptadores são síncronos.
 - No navegador, o DOM atualiza num frame depois do clique: medir após ~50 ms, não no mesmo tick.
+  Screenshot logo após um clique pode sair com a tela no meio da renderização: confirmar com medidas.
+- jsdom: sem `PointerEvent` (usar `MouseEvent('pointerdown')`), sem `setPointerCapture` (chamar com
+  `?.`), sem `matchMedia`. `textContent` cola irmãos sem espaço: ler `<dt>`/`<dd>`/`<li>` um a um.
+- `keydown` no `document`: `event.target` pode ser o próprio document (sem `closest`).
+- Lint de template: nada de `(click)` em `div` (usar `<button>`), outputs sem nome de evento
+  nativo (`reset`, `close`, `change`...). `@for` de listas estáticas curtas: `track $index`.
+- Dev server: reiniciar ao criar libs novas (aliases novos no `tsconfig.base.json`).
 
 ## Dev server
 

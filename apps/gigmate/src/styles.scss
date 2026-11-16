@@ -1,1 +1,65 @@
-/* You can add global styles to this file, and also import other style files */
+// Design tokens. Components only read these variables, so the whole app
+// changes theme here. Dark is the default (a stage at night); light follows
+// the system preference.
+:root {
+  color-scheme: dark;
+  --gm-bg: #14111a;
+  --gm-surface: #211c2a;
+  --gm-chip: #2e2738;
+  --gm-border: #3b3346;
+  --gm-text: #f4eff8;
+  --gm-muted: #b3a9bf;
+  --gm-accent: #ff7a59;
+  --gm-on-accent: #1a0d08;
+  --gm-like: #3ddc97;
+  --gm-pass: #ff5c7a;
+  --gm-danger: #ffb4c0;
+  --gm-danger-bg: #4a1f2a;
+  --gm-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.45);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --gm-bg: #f6f2ee;
+    --gm-surface: #ffffff;
+    --gm-chip: #f0e9e3;
+    --gm-border: #e0d6cd;
+    --gm-text: #231c26;
+    --gm-muted: #6b5f70;
+    --gm-accent: #d9481f;
+    --gm-on-accent: #ffffff;
+    --gm-like: #138a55;
+    --gm-pass: #c8234a;
+    --gm-danger: #8f1530;
+    --gm-danger-bg: #fde3e8;
+    --gm-shadow: 0 0.75rem 2rem rgb(60 30 20 / 0.15);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--gm-bg);
+  color: var(--gm-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  // The deck moves cards sideways: never let that scroll the page.
+  overflow-x: hidden;
+}

@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import {
+  type DeckFilters,
+  DEFAULT_FILTER_RADIUS_KM,
+  distanceKm,
   generateFakeMusicians,
   type MusicianProfile,
   wouldLikeBack,
 } from '@gigmate/musicians/domain';
 import { of, Subject, throwError } from 'rxjs';
 import { DEMO_VIEWER } from '../local/demo-viewer';
-import { LOCAL_LATENCY_MS } from '../local/local-config';
+import { LOCAL_LATENCY_MS, STORAGE_KEYS } from '../local/local-config';
 import { provideLocalMusiciansData } from '../provide-local-musicians-data';
 import {
   type Match,
@@ -14,7 +17,12 @@ import {
   type Swipe,
   SwipesRepository,
 } from '../ports';
-import { createMemoryStorage, KEY_VALUE_STORAGE } from '../storage';
+import {
+  createMemoryStorage,
+  KEY_VALUE_STORAGE,
+  readJson,
+  writeJson,
+} from '../storage';
 import { setupLocalData, valueOf } from '../testing';
 import { DeckStore } from './deck-store';
 
@@ -22,7 +30,21 @@ const fakes = generateFakeMusicians();
 const likesBack = fakes.find((m) => wouldLikeBack(m, DEMO_VIEWER))!;
 const doesNotLikeBack = fakes.find((m) => !wouldLikeBack(m, DEMO_VIEWER))!;
 
+const NO_FILTERS: DeckFilters = {
+  instruments: [],
+  genres: [],
+  goals: [],
+  sharedAvailabilityOnly: false,
+  maxDistanceKm: 100,
+};
+
 const deckIds = (store: DeckStore) => store.cards().map((c) => c.profile.id);
+
+/** Loads and lifts every filter, so any fake profile can be swiped. */
+function loadEverything(store: DeckStore): void {
+  store.load();
+  store.setFilters(NO_FILTERS);
+}
 
 describe('DeckStore with the local adapters', () => {
   let store: DeckStore;
@@ -36,10 +58,11 @@ describe('DeckStore with the local adapters', () => {
     expect(store.status()).toBe('idle');
     expect(store.cards()).toEqual([]);
     expect(store.current()).toBeNull();
+    expect(store.filters()).toBeNull();
   });
 
-  it('loads every candidate, best match first', () => {
-    store.load();
+  it('ranks the deck, best match first', () => {
+    loadEverything(store);
     expect(store.status()).toBe('ready');
     expect(store.viewer()).toEqual(DEMO_VIEWER);
 
@@ -50,7 +73,7 @@ describe('DeckStore with the local adapters', () => {
   });
 
   it('removes a liked card at once and announces the match', () => {
-    store.load();
+    loadEverything(store);
     store.like(likesBack.id);
     expect(deckIds(store)).not.toContain(likesBack.id);
     expect(store.lastMatch()).toEqual(likesBack);
@@ -60,21 +83,21 @@ describe('DeckStore with the local adapters', () => {
   });
 
   it('removes a card without a match when the other side would not like back', () => {
-    store.load();
+    loadEverything(store);
     store.like(doesNotLikeBack.id);
     expect(deckIds(store)).not.toContain(doesNotLikeBack.id);
     expect(store.lastMatch()).toBeNull();
   });
 
   it('removes a passed card without a match', () => {
-    store.load();
+    loadEverything(store);
     store.pass(likesBack.id);
     expect(deckIds(store)).not.toContain(likesBack.id);
     expect(store.lastMatch()).toBeNull();
   });
 
   it('ignores a second swipe on the same card', async () => {
-    store.load();
+    loadEverything(store);
     store.like(likesBack.id);
     store.pass(likesBack.id);
     const swipes = await valueOf(TestBed.inject(SwipesRepository).listSwipes());
@@ -85,7 +108,7 @@ describe('DeckStore with the local adapters', () => {
     const storage = createMemoryStorage();
     setupLocalData(storage);
     store = TestBed.inject(DeckStore);
-    store.load();
+    loadEverything(store);
     store.pass(doesNotLikeBack.id);
 
     setupLocalData(storage);
@@ -93,6 +116,74 @@ describe('DeckStore with the local adapters', () => {
     store.load();
     expect(deckIds(store)).not.toContain(doesNotLikeBack.id);
     expect(store.cards()).toHaveLength(fakes.length - 1);
+  });
+});
+
+describe('DeckStore filters', () => {
+  let store: DeckStore;
+  let storage: ReturnType<typeof createMemoryStorage>;
+
+  beforeEach(() => {
+    storage = setupLocalData();
+    store = TestBed.inject(DeckStore);
+  });
+
+  it('starts from what the viewer is looking for, nearby', () => {
+    store.load();
+    expect(store.filters()?.instruments).toEqual(DEMO_VIEWER.lookingFor);
+    expect(store.cards().length).toBeGreaterThan(0);
+    for (const { profile } of store.cards()) {
+      expect(profile.instruments.map((s) => s.instrument)).toContain('drums');
+      expect(
+        distanceKm(DEMO_VIEWER.location, profile.location),
+      ).toBeLessThanOrEqual(DEFAULT_FILTER_RADIUS_KM);
+    }
+  });
+
+  it('counts how many unseen musicians the filters hide', () => {
+    store.load();
+    expect(store.hiddenByFilters()).toBe(fakes.length - store.cards().length);
+    store.setFilters(NO_FILTERS);
+    expect(store.hiddenByFilters()).toBe(0);
+  });
+
+  it('applies new filters at once and keeps them across reloads', () => {
+    store.load();
+    const vocalists = { ...NO_FILTERS, instruments: ['vocals'] } as const;
+    store.setFilters(vocalists);
+    expect(
+      store
+        .cards()
+        .every((c) =>
+          c.profile.instruments.some((s) => s.instrument === 'vocals'),
+        ),
+    ).toBe(true);
+
+    setupLocalData(storage);
+    store = TestBed.inject(DeckStore);
+    store.load();
+    expect(store.filters()).toEqual(vocalists);
+  });
+
+  it('fills fields missing from saved filters with the defaults', () => {
+    writeJson(storage, STORAGE_KEYS.filters, { genres: ['rock'] });
+    store.load();
+    expect(store.filters()).toEqual({
+      instruments: ['drums'],
+      genres: ['rock'],
+      goals: [],
+      sharedAvailabilityOnly: false,
+      maxDistanceKm: DEFAULT_FILTER_RADIUS_KM,
+    });
+  });
+
+  it('resets to the defaults and forgets the saved filters', () => {
+    store.load();
+    const defaults = store.filters();
+    store.setFilters(NO_FILTERS);
+    store.resetFilters();
+    expect(store.filters()).toEqual(defaults);
+    expect(readJson(storage, STORAGE_KEYS.filters, null)).toBeNull();
   });
 });
 
@@ -104,6 +195,7 @@ describe('DeckStore with test doubles', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
+        { provide: KEY_VALUE_STORAGE, useValue: createMemoryStorage() },
         {
           provide: ProfilesRepository,
           useValue: {

@@ -3,6 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   type Compatibility,
   compatibility,
+  type DeckFilters,
+  defaultFilters,
+  matchesFilters,
   type MusicianProfile,
 } from '@gigmate/musicians/domain';
 import {
@@ -15,11 +18,13 @@ import {
   Subject,
   tap,
 } from 'rxjs';
+import { STORAGE_KEYS } from '../local/local-config';
 import {
   ProfilesRepository,
   type SwipeDecision,
   SwipesRepository,
 } from '../ports';
+import { KEY_VALUE_STORAGE, readJson, writeJson } from '../storage';
 
 export interface DeckCard {
   readonly profile: MusicianProfile;
@@ -37,6 +42,8 @@ interface DeckState {
   /** Load error (status 'error') or the last swipe error (status stays 'ready'). */
   readonly error: unknown;
   readonly lastMatch: MusicianProfile | null;
+  /** Null until the viewer is known (the defaults come from the viewer). */
+  readonly filters: DeckFilters | null;
 }
 
 const initialState: DeckState = {
@@ -46,6 +53,7 @@ const initialState: DeckState = {
   status: 'idle',
   error: null,
   lastMatch: null,
+  filters: null,
 };
 
 /**
@@ -59,6 +67,9 @@ const initialState: DeckState = {
 export class DeckStore {
   private readonly profiles = inject(ProfilesRepository);
   private readonly swipes = inject(SwipesRepository);
+  // Filters are a device preference, not shared data: always stored locally,
+  // whatever the backend behind the ports.
+  private readonly storage = inject(KEY_VALUE_STORAGE);
 
   private readonly state = signal(initialState);
   private readonly load$ = new Subject<void>();
@@ -72,13 +83,21 @@ export class DeckStore {
   readonly error = computed(() => this.state().error);
   readonly viewer = computed(() => this.state().viewer);
   readonly lastMatch = computed(() => this.state().lastMatch);
+  readonly filters = computed(() => this.state().filters);
 
-  /** Ranked by score; ties by id so the order is stable. */
-  readonly cards = computed<readonly DeckCard[]>(() => {
+  /** Not swiped yet, before filters. */
+  private readonly unseen = computed(() => {
     const { viewer, candidates, swipedIds } = this.state();
     if (!viewer) return [];
-    return candidates
-      .filter((p) => p.id !== viewer.id && !swipedIds.has(p.id))
+    return candidates.filter((p) => p.id !== viewer.id && !swipedIds.has(p.id));
+  });
+
+  /** Filtered, then ranked by score; ties by id so the order is stable. */
+  readonly cards = computed<readonly DeckCard[]>(() => {
+    const { viewer, filters } = this.state();
+    if (!viewer || !filters) return [];
+    return this.unseen()
+      .filter((p) => matchesFilters(p, viewer, filters))
       .map((profile) => ({
         profile,
         compatibility: compatibility(viewer, profile),
@@ -91,6 +110,11 @@ export class DeckStore {
   });
 
   readonly current = computed(() => this.cards()[0] ?? null);
+
+  /** Unseen musicians the filters are hiding (to suggest widening them). */
+  readonly hiddenByFilters = computed(
+    () => this.unseen().length - this.cards().length,
+  );
 
   constructor() {
     this.load$
@@ -108,6 +132,7 @@ export class DeckStore {
                 viewer,
                 candidates,
                 swipedIds: new Set(swipes.map((s) => s.targetId)),
+                filters: this.restoreFilters(viewer),
                 status: 'ready',
               }),
             ),
@@ -156,6 +181,30 @@ export class DeckStore {
 
   dismissMatch(): void {
     this.patch({ lastMatch: null });
+  }
+
+  setFilters(filters: DeckFilters): void {
+    this.patch({ filters });
+    writeJson(this.storage, STORAGE_KEYS.filters, filters);
+  }
+
+  resetFilters(): void {
+    const viewer = this.state().viewer;
+    this.storage.removeItem(STORAGE_KEYS.filters);
+    this.patch({ filters: viewer ? defaultFilters(viewer) : null });
+  }
+
+  /**
+   * Saved filters over the defaults: a field added in a later version gets its
+   * default instead of `undefined`.
+   */
+  private restoreFilters(viewer: MusicianProfile): DeckFilters {
+    const saved = readJson<Partial<DeckFilters>>(
+      this.storage,
+      STORAGE_KEYS.filters,
+      {},
+    );
+    return { ...defaultFilters(viewer), ...saved };
   }
 
   private swipe(id: string, decision: SwipeDecision): void {

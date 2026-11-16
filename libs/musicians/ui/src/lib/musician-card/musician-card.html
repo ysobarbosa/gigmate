@@ -1,0 +1,78 @@
+@let p = profile();
+
+<header class="head">
+  <gm-avatar [id]="p.id" [name]="p.name" />
+  <div class="identity">
+    <h2 class="name">{{ p.name }}, {{ p.age }}</h2>
+    <p class="instruments">{{ instruments().join(' · ') }}</p>
+    <p class="place">
+      {{ p.neighborhood }}
+      @if (distance(); as km) {
+        <span> · ~{{ km }} km</span>
+      }
+    </p>
+  </div>
+  @if (compatibility(); as c) {
+    <p
+      class="score"
+      [attr.aria-label]="'Compatibilidade ' + c.score + ' de 100'"
+    >
+      <strong>{{ c.score }}</strong>
+      <span>sintonia</span>
+    </p>
+  }
+</header>
+
+<p class="bio">{{ p.bio }}</p>
+
+<dl class="facts">
+  <dt>Toca</dt>
+  <dd>
+    <ul class="tags">
+      @for (genre of genresPlayed(); track $index) {
+        <li>{{ genre }}</li>
+      }
+    </ul>
+  </dd>
+
+  @if (genresLiked()) {
+    <dt>Também curte</dt>
+    <dd>{{ genresLiked() }}</dd>
+  }
+
+  <dt>Quer</dt>
+  <dd>
+    <ul class="tags">
+      @for (goal of goals(); track $index) {
+        <li>{{ goal }}</li>
+      }
+    </ul>
+  </dd>
+
+  <dt>Livre</dt>
+  <dd>{{ availability() }}</dd>
+
+  @if (lookingFor()) {
+    <dt>Procura</dt>
+    <dd>{{ lookingFor() }}</dd>
+  }
+
+  @if (perks().length) {
+    <dt>Extras</dt>
+    <dd>{{ perks().join(' · ') }}</dd>
+  }
+</dl>
+
+@if (reasons().length) {
+  <section class="why" aria-label="Por que vocês combinam">
+    @for (reason of reasons(); track reason.label) {
+      <div class="reason">
+        <span>{{ reason.label }}</span>
+        <span class="bar" aria-hidden="true">
+          <span [style.width.%]="reason.percent"></span>
+        </span>
+        <span class="percent">{{ reason.percent }}%</span>
+      </div>
+    }
+  </section>
+}

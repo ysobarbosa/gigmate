@@ -1,0 +1,90 @@
+<!-- Mouse/touch shortcut only: keyboard users close with Esc or the ✕ button. -->
+<button
+  type="button"
+  class="backdrop"
+  tabindex="-1"
+  aria-hidden="true"
+  (click)="closed.emit()"
+></button>
+<section
+  class="sheet"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="filters-title"
+>
+  <header class="head">
+    <h2 id="filters-title" tabindex="-1">Filtros</h2>
+    <button
+      type="button"
+      class="close"
+      aria-label="Fechar filtros"
+      (click)="closed.emit()"
+    >
+      ✕
+    </button>
+  </header>
+
+  <div class="body">
+    <fieldset>
+      <legend>Toca</legend>
+      <gm-chip-select
+        label="Instrumentos"
+        [options]="instrumentOptions"
+        [selected]="filters().instruments"
+        (selectedChange)="update({ instruments: $event })"
+      />
+    </fieldset>
+
+    <fieldset>
+      <legend>Gêneros</legend>
+      <gm-chip-select
+        label="Gêneros"
+        [options]="genreOptions"
+        [selected]="filters().genres"
+        (selectedChange)="update({ genres: $event })"
+      />
+    </fieldset>
+
+    <fieldset>
+      <legend>Objetivos</legend>
+      <gm-chip-select
+        label="Objetivos"
+        [options]="goalOptions"
+        [selected]="filters().goals"
+        (selectedChange)="update({ goals: $event })"
+      />
+    </fieldset>
+
+    <label class="radius">
+      <span>
+        Distância máxima: <strong>{{ filters().maxDistanceKm }} km</strong>
+      </span>
+      <input
+        type="range"
+        [min]="minRadius"
+        [max]="maxRadius"
+        step="1"
+        [value]="filters().maxDistanceKm"
+        (input)="update({ maxDistanceKm: numberFrom($event) })"
+      />
+    </label>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [checked]="filters().sharedAvailabilityOnly"
+        (change)="update({ sharedAvailabilityOnly: checkedFrom($event) })"
+      />
+      Só quem tem horário livre em comum comigo
+    </label>
+  </div>
+
+  <footer class="foot">
+    <button type="button" (click)="resetFilters.emit()">
+      Restaurar padrão
+    </button>
+    <button type="button" class="primary" (click)="closed.emit()">
+      Ver {{ resultCount() }} {{ resultCount() === 1 ? 'músico' : 'músicos' }}
+    </button>
+  </footer>
+</section>

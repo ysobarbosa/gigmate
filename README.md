@@ -55,12 +55,24 @@ npx nx run-many -t build,test,lint
   Os salvamentos vão em fila (`concatMap`), na ordem dos swipes. Uma latência artificial de
   300 ms deixa os estados de carregamento visíveis na demo.
 
+- **Camadas com fronteiras no lint.** `domain` (TS puro) ← `data-access` (portas, adaptadores,
+  stores) ← `ui` (componentes de apresentação, só inputs e outputs) ← `feature-deck` (página que
+  liga store e UI) ← app. O ESLint do Nx bloqueia imports na direção errada.
+- **Swipe sem biblioteca.** Uma diretiva com pointer events (mouse, toque e caneta) move o card
+  com `transform` ligado a signals. Botões e setas do teclado chamam o mesmo `fling()`, então
+  todas as formas de decidir têm a mesma animação. Respeita `prefers-reduced-motion`.
+- **Filtros são requisitos; a nota ordena.** Instrumento (principal ou secundário), gêneros,
+  objetivos, horário em comum e raio decidem quem entra no deck. O padrão vem do perfil
+  ("procuro bateria", até 10 km). Os filtros valem na hora e ficam salvos no aparelho.
+- **Acessível por teclado e leitor de tela.** Setas ← → no deck, Esc fecha painéis, foco vai para
+  o diálogo aberto, chips com `aria-pressed`, card de trás escondido com `inert`.
+
 ## Progresso
 
 - [x] Workspace Nx + app Angular com shell mínimo
 - [x] Domínio: perfis, compatibilidade e perfis fictícios
 - [x] Camada de dados local com Signals
-- [ ] Deck com swipe, filtros e ordem por compatibilidade
+- [x] Deck com swipe, filtros e ordem por compatibilidade
 - [ ] Perfil e onboarding
 - [ ] Matches
 - [ ] PWA

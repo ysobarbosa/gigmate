@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.shell {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 0.75rem;
+
+  h1 {
+    margin: 0;
+    color: var(--gm-accent);
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    color: var(--gm-muted);
+    font-size: 0.9rem;
+  }
+}

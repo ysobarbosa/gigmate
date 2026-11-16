@@ -1,0 +1,146 @@
+<div class="toolbar">
+  <p class="count" aria-live="polite">
+    @if (store.status() === 'ready') {
+      {{ store.cards().length }}
+      {{ store.cards().length === 1 ? 'músico' : 'músicos' }} com seus filtros
+    }
+  </p>
+  <button
+    type="button"
+    class="filters-button"
+    aria-haspopup="dialog"
+    [attr.aria-label]="filtersLabel()"
+    [attr.aria-expanded]="filtersOpen()"
+    [disabled]="store.status() !== 'ready'"
+    (click)="filtersOpen.set(true)"
+  >
+    Filtros
+    @if (activeFilters()) {
+      <span class="badge" aria-hidden="true">{{ activeFilters() }}</span>
+    }
+  </button>
+</div>
+
+@if (store.error() && store.status() === 'ready') {
+  <p class="toast" role="alert">
+    Não deu para salvar. O card voltou para o deck.
+  </p>
+}
+
+@switch (store.status()) {
+  @case ('error') {
+    <div class="state">
+      <p>Não foi possível carregar os músicos.</p>
+      <button type="button" class="primary" (click)="store.load()">
+        Tentar de novo
+      </button>
+    </div>
+  }
+  @case ('ready') {
+    @if (top().length) {
+      <div class="stack">
+        @if (next(); as card) {
+          <gm-musician-card
+            class="behind"
+            aria-hidden="true"
+            inert
+            [profile]="card.profile"
+            [compatibility]="card.compatibility"
+          />
+        }
+        @for (card of top(); track card.profile.id) {
+          <div
+            class="top"
+            gmSwipeable
+            #swipe="gmSwipeable"
+            [swipeDisabled]="filtersOpen()"
+            (swiped)="decide(card.profile.id, $event)"
+          >
+            @if (swipe.leaning(); as lean) {
+              <span
+                class="stamp"
+                [class.like]="lean === 'like'"
+                [class.pass]="lean === 'pass'"
+                aria-hidden="true"
+              >
+                {{ lean === 'like' ? 'Curtir' : 'Passar' }}
+              </span>
+            }
+            <gm-musician-card
+              [profile]="card.profile"
+              [compatibility]="card.compatibility"
+            />
+          </div>
+        }
+      </div>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="round pass"
+          aria-label="Passar"
+          (click)="swipe('pass')"
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+        <button
+          type="button"
+          class="round like"
+          aria-label="Curtir"
+          (click)="swipe('like')"
+        >
+          <span aria-hidden="true">♥</span>
+        </button>
+      </div>
+      <p class="hint">Arraste o card para os lados ou use as setas ← →</p>
+    } @else {
+      <div class="state">
+        @if (store.hiddenByFilters()) {
+          <p>Ninguém mais com esses filtros.</p>
+          <p class="muted">
+            {{ store.hiddenByFilters() }}
+            {{
+              store.hiddenByFilters() === 1 ? 'músico está' : 'músicos estão'
+            }}
+            fora deles.
+          </p>
+          <div class="row">
+            <button type="button" (click)="filtersOpen.set(true)">
+              Ajustar filtros
+            </button>
+            <button
+              type="button"
+              class="primary"
+              (click)="store.resetFilters()"
+            >
+              Restaurar padrão
+            </button>
+          </div>
+        } @else {
+          <p>Você já viu todo mundo da região.</p>
+          <p class="muted">Volte mais tarde para ver gente nova.</p>
+        }
+      </div>
+    }
+  }
+  @default {
+    <div class="state" aria-busy="true">
+      <div class="skeleton"></div>
+      <p class="muted">Procurando músicos perto de você...</p>
+    </div>
+  }
+}
+
+@if (filtersOpen() && store.filters(); as filters) {
+  <gm-filters-panel
+    [filters]="filters"
+    [resultCount]="store.cards().length"
+    (filtersChange)="updateFilters($event)"
+    (resetFilters)="store.resetFilters()"
+    (closed)="filtersOpen.set(false)"
+  />
+}
+
+@if (store.lastMatch(); as match) {
+  <gm-match-dialog [match]="match" (closed)="store.dismissMatch()" />
+}

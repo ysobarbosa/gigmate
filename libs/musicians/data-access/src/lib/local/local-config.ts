@@ -20,4 +20,5 @@ export const STORAGE_KEYS = {
   viewer: 'gigmate:v1:viewer',
   swipes: 'gigmate:v1:swipes',
   matches: 'gigmate:v1:matches',
+  filters: 'gigmate:v1:filters',
 } as const;

@@ -1,0 +1,13 @@
+:host {
+  display: inline-grid;
+  place-items: center;
+  width: var(--gm-avatar-size, 3.5rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: hsl(var(--gm-avatar-hue) 55% 42%);
+  color: #fff;
+  font-weight: 700;
+  font-size: calc(var(--gm-avatar-size, 3.5rem) * 0.38);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}

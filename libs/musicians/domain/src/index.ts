@@ -34,6 +34,14 @@ export type {
   CompatibilityOptions,
 } from './lib/compatibility';
 export {
+  DEFAULT_FILTER_RADIUS_KM,
+  defaultFilters,
+  matchesFilters,
+  MAX_FILTER_RADIUS_KM,
+  MIN_FILTER_RADIUS_KM,
+} from './lib/filters';
+export type { DeckFilters } from './lib/filters';
+export {
   DEFAULT_FAKE_SEED,
   generateFakeMusicians,
 } from './lib/fake/fake-musicians';
