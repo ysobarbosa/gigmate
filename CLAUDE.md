@@ -49,7 +49,10 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
 ## Fases
 
 1. App gerado no Nx (concluída: shell mínimo, `nx-welcome` removido).
-2. Domínio: tipos, função de compatibilidade (bem testada), gerador de seed.
+2. Domínio (concluída): `libs/musicians/domain` (`@gigmate/musicians/domain`, `@nx/js:library`,
+   não buildable, jest em ambiente node, tags `scope:musicians,type:domain`). Tipos derivados
+   de arrays `const`, `distanceKm`/`approximateLocation`, `compatibility` (simétrica, 0 a 100),
+   `wouldLikeBack` (limite 35) e `generateFakeMusicians` (60 perfis em SP, semente 42). 101 testes.
 3. Camada de dados local: interfaces, adaptador `localStorage`, stores com Signals.
 4. Deck: swipe (pointer events), filtros, ordem por compatibilidade.
 5. Perfil e onboarding em etapas.
@@ -69,6 +72,13 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
 - Arquivo que ninguém importa não é checado por `nx test`/`nx build`: usar
   `npx tsc -p <lib>/tsconfig.lib.json --noEmit`.
 - Problemas de cache: `npx nx reset`.
+- Fronteiras: `type:app` → feature/ui/data-access/domain; `type:domain` → só domain e sem
+  `@angular/*`/`rxjs` (`bannedExternalImports`). Comprovado com um import de prova.
+- Rodar um `.ts` solto (o TS 6 recusa `moduleResolution: node10` sem `ignoreDeprecations`):
+
+  ```sh
+  npx ts-node --transpile-only -O '{"module":"commonjs","moduleResolution":"node","ignoreDeprecations":"6.0"}' arquivo.ts
+  ```
 
 ## Dev server
 

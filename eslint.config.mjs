@@ -15,10 +15,26 @@ export default [
         {
           enforceBuildableLibDependency: true,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          // Layers, from top to bottom: app -> feature -> ui / data-access -> domain.
           depConstraints: [
             {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
+              sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:ui',
+                'type:data-access',
+                'type:domain',
+              ],
+            },
+            {
+              sourceTag: 'type:e2e',
+              onlyDependOnLibsWithTags: [],
+            },
+            {
+              sourceTag: 'type:domain',
+              onlyDependOnLibsWithTags: ['type:domain'],
+              // The domain is plain TypeScript: no framework, no streams.
+              bannedExternalImports: ['@angular/*', 'rxjs', 'rxjs/*'],
             },
           ],
         },

@@ -1,0 +1,9 @@
+{
+  "name": "musicians-domain",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/musicians/domain/src",
+  "projectType": "library",
+  "tags": ["scope:musicians", "type:domain"],
+  "// targets": "to see all targets run: nx show project musicians-domain --web",
+  "targets": {}
+}

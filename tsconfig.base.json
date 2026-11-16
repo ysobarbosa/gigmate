@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "strict": false,
-    "paths": {}
+    "paths": {
+      "@gigmate/musicians/domain": ["./libs/musicians/domain/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

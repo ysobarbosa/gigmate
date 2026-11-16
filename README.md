@@ -32,11 +32,23 @@ npx nx run-many -t build,test,lint
   nem conta em serviço externo. Um backend real pode entrar depois sem mudar a UI.
 - **Localização sempre aproximada.** O app mostra "~5 km", nunca a posição exata.
 - **PWA depois.** Primeiro as telas principais; instalação e offline vêm em seguida.
+- **Domínio em TypeScript puro.** Tipos, compatibilidade e gerador de perfis ficam em
+  `libs/musicians/domain`, sem Angular nem RxJS. O lint proíbe esses imports ali, então a
+  regra de negócio é testada sem framework e pode ser reaproveitada em qualquer camada.
+- **Compatibilidade simétrica e explicável.** A nota de 0 a 100 soma quatro componentes com
+  pesos fixos: gêneros (35%, o que a pessoa toca vale mais do que o que ela ouve),
+  disponibilidade (30%), objetivos (20%) e distância (15%). Disponibilidade e objetivos usam
+  o coeficiente de sobreposição, e não Jaccard, para não punir quem tem mais horários livres.
+  Instrumento procurado e raio são filtros, não entram na nota.
+- **Perfis fictícios reproduzíveis.** Gerados em código com um PRNG de semente fixa
+  (mulberry32): mesma semente, mesmas pessoas em todo teste e toda demo. Os perfis seguem
+  "cenas" de gêneros e rotinas de horário realistas, para a compatibilidade ter o que encontrar.
+  Um perfil fictício curte de volta quando a nota passa de 35 e ele procura o seu instrumento.
 
 ## Progresso
 
 - [x] Workspace Nx + app Angular com shell mínimo
-- [ ] Domínio: perfis, compatibilidade e perfis fictícios
+- [x] Domínio: perfis, compatibilidade e perfis fictícios
 - [ ] Camada de dados local com Signals
 - [ ] Deck com swipe, filtros e ordem por compatibilidade
 - [ ] Perfil e onboarding
