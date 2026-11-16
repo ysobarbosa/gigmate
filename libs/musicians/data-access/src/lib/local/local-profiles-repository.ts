@@ -6,10 +6,9 @@ import {
 import { defer, type Observable, of } from 'rxjs';
 import { ProfilesRepository } from '../ports';
 import { KEY_VALUE_STORAGE, readJson, writeJson } from '../storage';
-import { DEMO_VIEWER } from './demo-viewer';
 import { LOCAL_LATENCY_MS, STORAGE_KEYS, withLatency } from './local-config';
 
-/** Fake candidates (generated once, seeded) and the viewer in local storage. */
+/** Fake candidates (generated once, seeded) and the viewer, if any, in local storage. */
 @Service({ autoProvided: false })
 export class LocalProfilesRepository extends ProfilesRepository {
   private readonly storage = inject(KEY_VALUE_STORAGE);
@@ -17,10 +16,16 @@ export class LocalProfilesRepository extends ProfilesRepository {
   private readonly candidates: readonly MusicianProfile[] =
     generateFakeMusicians();
 
-  getViewer(): Observable<MusicianProfile> {
+  getViewer(): Observable<MusicianProfile | null> {
     // defer(): read storage on subscribe, not when the Observable is created.
     return defer(() =>
-      of(readJson(this.storage, STORAGE_KEYS.viewer, DEMO_VIEWER)),
+      of(
+        readJson<MusicianProfile | null>(
+          this.storage,
+          STORAGE_KEYS.viewer,
+          null,
+        ),
+      ),
     ).pipe(withLatency(this.latency));
   }
 

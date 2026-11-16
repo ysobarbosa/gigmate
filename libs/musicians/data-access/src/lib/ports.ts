@@ -31,8 +31,8 @@ export interface SwipeResult {
 }
 
 export abstract class ProfilesRepository {
-  /** The signed-in musician (in the local adapter, a demo profile until onboarding). */
-  abstract getViewer(): Observable<MusicianProfile>;
+  /** The signed-in musician, or null before onboarding. */
+  abstract getViewer(): Observable<MusicianProfile | null>;
   abstract saveViewer(profile: MusicianProfile): Observable<void>;
   /** Everyone who can appear in the deck. Filtering and ranking happen in the store. */
   abstract listCandidates(): Observable<readonly MusicianProfile[]>;

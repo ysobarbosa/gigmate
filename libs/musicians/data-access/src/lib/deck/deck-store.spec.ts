@@ -104,9 +104,18 @@ describe('DeckStore with the local adapters', () => {
     expect(swipes.map((s) => s.decision)).toEqual(['like']);
   });
 
+  it('is ready but empty before the viewer has a profile', () => {
+    setupLocalData(createMemoryStorage());
+    store = TestBed.inject(DeckStore);
+    store.load();
+    expect(store.status()).toBe('ready');
+    expect(store.viewer()).toBeNull();
+    expect(store.filters()).toBeNull();
+    expect(store.cards()).toEqual([]);
+  });
+
   it('keeps swiped cards out of the deck after a reload', () => {
-    const storage = createMemoryStorage();
-    setupLocalData(storage);
+    const storage = setupLocalData();
     store = TestBed.inject(DeckStore);
     loadEverything(store);
     store.pass(doesNotLikeBack.id);

@@ -14,6 +14,7 @@ export {
 export { LOCAL_LATENCY_MS } from './lib/local/local-config';
 export { DEMO_VIEWER } from './lib/local/demo-viewer';
 export { provideLocalMusiciansData } from './lib/provide-local-musicians-data';
+export { ViewerStore } from './lib/viewer/viewer-store';
 export {
   DeckStore,
   type DeckCard,

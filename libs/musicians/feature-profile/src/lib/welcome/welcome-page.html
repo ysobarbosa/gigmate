@@ -1,0 +1,37 @@
+<section class="hero">
+  <h2>Falta alguém na sua banda?</h2>
+  <p>
+    Monte seu perfil e descubra músicos perto de você que tocam o que você
+    procura, curtem o mesmo som e têm horário livre quando você tem.
+  </p>
+</section>
+
+<ol class="how">
+  <li>
+    <strong>Conte o que você toca</strong>
+    <span>Instrumentos, gêneros, objetivos e horários livres.</span>
+  </li>
+  <li>
+    <strong>Arraste para os lados</strong>
+    <span>Direita para curtir, esquerda para passar.</span>
+  </li>
+  <li>
+    <strong>Deu match?</strong>
+    <span>Se a outra pessoa também curtir, vocês combinam.</span>
+  </li>
+</ol>
+
+<div class="actions">
+  <a class="button primary" routerLink="/perfil">Criar meu perfil</a>
+  <button type="button" [disabled]="saving()" (click)="exploreAsDemo()">
+    Explorar com um perfil de exemplo
+  </button>
+  @if (failed()) {
+    <p class="error" role="alert">Não deu para entrar. Tente de novo.</p>
+  }
+</div>
+
+<p class="note">
+  Projeto de portfólio: os outros músicos são fictícios e tudo fica salvo só
+  neste navegador.
+</p>

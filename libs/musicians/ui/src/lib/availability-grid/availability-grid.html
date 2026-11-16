@@ -1,0 +1,18 @@
+<div class="grid">
+  <span></span>
+  @for (day of days; track day) {
+    <span class="day" aria-hidden="true">{{ dayLabels[day] }}</span>
+  }
+  @for (shift of shifts; track shift) {
+    <span class="shift" aria-hidden="true">{{ shiftLabels[shift] }}</span>
+    @for (day of days; track day) {
+      <button
+        type="button"
+        class="cell"
+        [attr.aria-label]="cellLabel(day, shift)"
+        [attr.aria-pressed]="isOn(day, shift)"
+        (click)="toggle(day, shift)"
+      ></button>
+    }
+  }
+</div>

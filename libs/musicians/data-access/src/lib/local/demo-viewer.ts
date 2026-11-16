@@ -15,7 +15,8 @@ export const DEMO_VIEWER: MusicianProfile = {
   genresLiked: ['blues', 'mpb'],
   goals: ['original-band', 'covers'],
   availability: ['tue-night', 'thu-night', 'sat-afternoon'],
-  location: { lat: -23.56, lng: -46.69 },
+  // Rounded Pinheiros center, as onboarding would store it.
+  location: { lat: -23.57, lng: -46.69 },
   neighborhood: 'Pinheiros',
   hasGear: true,
   hasCar: false,

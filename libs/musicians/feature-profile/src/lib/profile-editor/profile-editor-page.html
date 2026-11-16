@@ -1,0 +1,290 @@
+<header class="top">
+  <p class="eyebrow">
+    {{ editing ? 'Editar perfil' : 'Criar perfil' }} · Passo {{ step() + 1 }} de
+    {{ steps.length }}
+  </p>
+  <div
+    class="progress"
+    role="progressbar"
+    aria-label="Progresso do perfil"
+    [attr.aria-valuenow]="step() + 1"
+    aria-valuemin="1"
+    [attr.aria-valuemax]="steps.length"
+  >
+    <span [style.width.%]="((step() + 1) / steps.length) * 100"></span>
+  </div>
+  <h2 tabindex="-1">{{ current().title }}</h2>
+</header>
+
+<form class="body" novalidate (submit)="$event.preventDefault()">
+  @switch (step()) {
+    @case (0) {
+      <!-- The label holds only its text; hints and errors are linked with
+           aria-describedby, so the accessible name stays short. -->
+      <div class="field">
+        <label for="pf-name">Nome</label>
+        <input
+          id="pf-name"
+          type="text"
+          autocomplete="given-name"
+          [formField]="form.name"
+          [attr.aria-invalid]="invalid('name')"
+          [attr.aria-describedby]="describedBy('name')"
+        />
+        @if (errorsOf('name').length) {
+          <small id="pf-name-error" class="field-error">{{
+            errorsOf('name').join(' ')
+          }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="pf-age">Idade</label>
+        <input
+          id="pf-age"
+          type="number"
+          inputmode="numeric"
+          [formField]="form.age"
+          [attr.aria-invalid]="invalid('age')"
+          [attr.aria-describedby]="describedBy('age')"
+        />
+        @if (errorsOf('age').length) {
+          <small id="pf-age-error" class="field-error">{{
+            errorsOf('age').join(' ')
+          }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="pf-neighborhood">Bairro</label>
+        <select
+          id="pf-neighborhood"
+          [formField]="form.neighborhood"
+          [attr.aria-invalid]="invalid('neighborhood')"
+          [attr.aria-describedby]="describedBy('neighborhood', true)"
+        >
+          <option value="">Escolha...</option>
+          @for (name of neighborhoods; track name) {
+            <option [value]="name">{{ name }}</option>
+          }
+        </select>
+        <small id="pf-neighborhood-hint" class="hint">
+          Só o bairro aparece para os outros, como uma distância aproximada.
+        </small>
+        @if (errorsOf('neighborhood').length) {
+          <small id="pf-neighborhood-error" class="field-error">{{
+            errorsOf('neighborhood').join(' ')
+          }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="pf-bio">Sobre você (opcional)</label>
+        <textarea
+          id="pf-bio"
+          rows="3"
+          [formField]="form.bio"
+          [attr.aria-invalid]="invalid('bio')"
+          [attr.aria-describedby]="describedBy('bio', true)"
+        ></textarea>
+        <small id="pf-bio-hint" class="hint">
+          {{ model().bio.length }}/{{ limits.bioMaxLength }} caracteres
+        </small>
+        @if (errorsOf('bio').length) {
+          <small id="pf-bio-error" class="field-error">{{
+            errorsOf('bio').join(' ')
+          }}</small>
+        }
+      </div>
+    }
+
+    @case (1) {
+      <div class="pair">
+        <div class="field">
+          <label for="pf-main">Instrumento principal</label>
+          <select
+            id="pf-main"
+            [formField]="form.mainInstrument"
+            [attr.aria-invalid]="invalid('mainInstrument')"
+            [attr.aria-describedby]="describedBy('mainInstrument')"
+          >
+            <option value="">Escolha...</option>
+            @for (option of instrumentOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="pf-main-level">Nível</label>
+          <select
+            id="pf-main-level"
+            aria-label="Nível do instrumento principal"
+            [formField]="form.mainLevel"
+          >
+            @for (level of levels; track level.value) {
+              <option [value]="level.value">{{ level.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      @if (errorsOf('mainInstrument').length) {
+        <small id="pf-mainInstrument-error" class="field-error">{{
+          errorsOf('mainInstrument').join(' ')
+        }}</small>
+      }
+
+      <div class="pair">
+        <div class="field">
+          <label for="pf-second">Segundo instrumento (opcional)</label>
+          <select
+            id="pf-second"
+            [formField]="form.secondInstrument"
+            [attr.aria-invalid]="invalid('secondInstrument')"
+            [attr.aria-describedby]="describedBy('secondInstrument')"
+          >
+            <option value="">Nenhum</option>
+            @for (option of instrumentOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="pf-second-level">Nível</label>
+          <select
+            id="pf-second-level"
+            aria-label="Nível do segundo instrumento"
+            [formField]="form.secondLevel"
+          >
+            @for (level of levels; track level.value) {
+              <option [value]="level.value">{{ level.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      @if (errorsOf('secondInstrument').length) {
+        <small id="pf-secondInstrument-error" class="field-error">{{
+          errorsOf('secondInstrument').join(' ')
+        }}</small>
+      }
+
+      <fieldset>
+        <legend>Quem você procura (opcional)</legend>
+        <gm-chip-select
+          label="Instrumentos que você procura"
+          [options]="instrumentOptions"
+          [selected]="model().lookingFor"
+          (selectedChange)="set('lookingFor', $event)"
+        />
+        <small class="hint">Vira o filtro padrão do seu deck.</small>
+      </fieldset>
+    }
+
+    @case (2) {
+      <fieldset>
+        <legend>Gêneros que você toca</legend>
+        <gm-chip-select
+          label="Gêneros que você toca"
+          [options]="genreOptions"
+          [selected]="model().genresPlayed"
+          (selectedChange)="set('genresPlayed', $event)"
+        />
+        @for (message of errorsOf('genresPlayed'); track message) {
+          <small class="field-error">{{ message }}</small>
+        }
+      </fieldset>
+
+      <fieldset>
+        <legend>Gêneros que você curte ouvir (opcional)</legend>
+        <gm-chip-select
+          label="Gêneros que você curte"
+          [options]="genreOptions"
+          [selected]="model().genresLiked"
+          (selectedChange)="set('genresLiked', $event)"
+        />
+      </fieldset>
+
+      <fieldset>
+        <legend>O que você quer</legend>
+        <gm-chip-select
+          label="Objetivos"
+          [options]="goalOptions"
+          [selected]="model().goals"
+          (selectedChange)="set('goals', $event)"
+        />
+        @for (message of errorsOf('goals'); track message) {
+          <small class="field-error">{{ message }}</small>
+        }
+      </fieldset>
+    }
+
+    @case (3) {
+      <fieldset>
+        <legend>Quando você está livre</legend>
+        <gm-availability-grid
+          [slots]="model().availability"
+          (slotsChange)="set('availability', $event)"
+        />
+        @for (message of errorsOf('availability'); track message) {
+          <small class="field-error">{{ message }}</small>
+        }
+      </fieldset>
+
+      <fieldset class="checks">
+        <legend>Estrutura</legend>
+        <label>
+          <input type="checkbox" [formField]="form.hasGear" />
+          Tenho equipamento próprio
+        </label>
+        <label>
+          <input type="checkbox" [formField]="form.hasCar" />
+          Tenho carro
+        </label>
+        <label>
+          <input type="checkbox" [formField]="form.hasRehearsalSpace" />
+          Tenho lugar para ensaiar
+        </label>
+      </fieldset>
+    }
+
+    @default {
+      @if (preview(); as profile) {
+        <p class="hint">É assim que os outros músicos vão ver você.</p>
+        <gm-musician-card [profile]="profile" />
+      }
+      @if (saveFailed()) {
+        <p class="field-error" role="alert">
+          Não foi possível salvar. Tente de novo.
+        </p>
+      }
+    }
+  }
+</form>
+
+<footer class="actions">
+  @if (step() > 0) {
+    <button type="button" (click)="back()">Voltar</button>
+  } @else if (editing) {
+    <a class="button" routerLink="/">Cancelar</a>
+  } @else {
+    <span></span>
+  }
+
+  @if (isLast()) {
+    <button
+      type="button"
+      class="primary"
+      [disabled]="saving()"
+      (click)="save()"
+    >
+      {{
+        saving()
+          ? 'Salvando...'
+          : editing
+            ? 'Salvar perfil'
+            : 'Começar a procurar'
+      }}
+    </button>
+  } @else {
+    <button type="button" class="primary" (click)="next()">Próximo</button>
+  }
+</footer>

@@ -132,7 +132,8 @@ export class DeckStore {
                 viewer,
                 candidates,
                 swipedIds: new Set(swipes.map((s) => s.targetId)),
-                filters: this.restoreFilters(viewer),
+                // No viewer yet (before onboarding): an empty deck.
+                filters: viewer ? this.restoreFilters(viewer) : null,
                 status: 'ready',
               }),
             ),
@@ -192,6 +193,17 @@ export class DeckStore {
     const viewer = this.state().viewer;
     this.storage.removeItem(STORAGE_KEYS.filters);
     this.patch({ filters: viewer ? defaultFilters(viewer) : null });
+  }
+
+  /**
+   * The viewer edited their profile. Scores are `computed` from the viewer, so
+   * they update by themselves; filters start over from the new profile (the
+   * old ones were built around what the viewer used to look for).
+   */
+  replaceViewer(viewer: MusicianProfile): void {
+    this.storage.removeItem(STORAGE_KEYS.filters);
+    if (this.state().status !== 'ready') return; // the next load() reads it
+    this.patch({ viewer, filters: defaultFilters(viewer), lastMatch: null });
   }
 
   /**

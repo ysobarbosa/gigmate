@@ -67,7 +67,15 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
    `model()`, `MusicianCard`, diretiva `Swipeable` + `swipeOutcome`) e `musicians/feature-deck`
    (`type:feature`: `DeckPage`, `FiltersPanel`, `MatchDialog`). Rota `''` faz lazy load da feature.
    Tema em tokens `--gm-*` no `apps/gigmate/src/styles.scss` (escuro padrão, claro pelo sistema).
-5. Perfil e onboarding em etapas.
+5. Perfil e onboarding (concluída): porta `getViewer()` devolve `null` antes do onboarding;
+   `ViewerStore` (`ensureLoaded()` para guards, `save()` assíncrono que avisa o `DeckStore`
+   via `replaceViewer`, que zera os filtros salvos). Domínio: `NEIGHBORHOODS`/`NEIGHBORHOOD_NAMES`,
+   `neighborhoodLocation`, `PROFILE_LIMITS`. UI: `AvailabilityGrid` (`model()` de slots).
+   Lib `musicians/feature-profile` (`type:feature`): `WelcomePage`, `ProfileEditorPage`
+   (Signal Forms: `form()`, `[formField]`, schema em `profile-form.ts`, `PROFILE_STEPS`,
+   `ProfileDraft` plano ↔ `MusicianProfile`). Guards no app (`profile-guards.ts`): `/` exige
+   perfil, `/boas-vindas` só sem perfil, `/perfil` só carrega. `DEMO_VIEWER` em Pinheiros
+   arredondado (-23.57, -46.69).
 6. Matches: like mútuo, tela de matches, detalhe com amostras.
 7. PWA: instalável, offline básico.
 8. Opcional: Supabase + login, e2e Cypress, deploy.
@@ -105,6 +113,18 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
 - Lint de template: nada de `(click)` em `div` (usar `<button>`), outputs sem nome de evento
   nativo (`reset`, `close`, `change`...). `@for` de listas estáticas curtas: `track $index`.
 - Dev server: reiniciar ao criar libs novas (aliases novos no `tsconfig.base.json`).
+- HMR pode aplicar template novo sobre instância antiga ("Cannot read properties of undefined"
+  no template): confirmar com reload limpo e um `console.log` marcador antes de investigar.
+- Signal Forms: `form(model, schema)` precisa de contexto de injeção (nos testes,
+  `TestBed.runInInjectionContext`). Diretiva `[formField]`. Controles próprios (chips, grade)
+  ligados à mão: `value.set` + `markAsTouched()`.
+- `[attr.x]="false"` grava `x="false"`; para remover o atributo, use `null`.
+- `<label>` envolvendo controle + dica + erro polui o nome acessível (inclui as opções do
+  select). Usar `<label for>` só com o texto e `aria-describedby` para dica/erro.
+- Foco/scroll depois de mudar estado: `afterNextRender(..., { injector })`, não `queueMicrotask`
+  (no zoneless o render vem depois do microtask).
+- A usuária às vezes usa o app no preview ao mesmo tempo: ler o estado antes de limpar
+  `localStorage` ou mexer em filtros.
 
 ## Dev server
 

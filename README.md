@@ -44,7 +44,6 @@ npx nx run-many -t build,test,lint
   (mulberry32): mesma semente, mesmas pessoas em todo teste e toda demo. Os perfis seguem
   "cenas" de gêneros e rotinas de horário realistas, para a compatibilidade ter o que encontrar.
   Um perfil fictício curte de volta quando a nota passa de 35 e ele procura o seu instrumento.
-
 - **Portas e adaptadores.** `libs/musicians/data-access` define as portas
   (`ProfilesRepository`, `SwipesRepository`) como classes abstratas, que servem de tipo e de
   token de injeção. O adaptador local entra no app por uma linha no `app.config.ts`
@@ -54,7 +53,6 @@ npx nx run-many -t build,test,lint
   expõe só `computed`. A carta sai do deck na hora do swipe e volta, com aviso, se salvar falhar.
   Os salvamentos vão em fila (`concatMap`), na ordem dos swipes. Uma latência artificial de
   300 ms deixa os estados de carregamento visíveis na demo.
-
 - **Camadas com fronteiras no lint.** `domain` (TS puro) ← `data-access` (portas, adaptadores,
   stores) ← `ui` (componentes de apresentação, só inputs e outputs) ← `feature-deck` (página que
   liga store e UI) ← app. O ESLint do Nx bloqueia imports na direção errada.
@@ -66,6 +64,15 @@ npx nx run-many -t build,test,lint
   ("procuro bateria", até 10 km). Os filtros valem na hora e ficam salvos no aparelho.
 - **Acessível por teclado e leitor de tela.** Setas ← → no deck, Esc fecha painéis, foco vai para
   o diálogo aberto, chips com `aria-pressed`, card de trás escondido com `inert`.
+- **Onboarding com Signal Forms.** O perfil é um assistente de 5 passos com um único formulário
+  do `@angular/forms/signals` (API pública no Angular 22): validação declarada num schema,
+  regra entre campos ("segundo instrumento diferente do principal") e cada passo só avança com
+  os próprios campos válidos. Rótulos curtos, dicas e erros ligados por `aria-describedby`,
+  foco no primeiro campo a corrigir. A última tela mostra o card como os outros vão ver.
+- **Bairro em vez de GPS.** No cadastro a pessoa escolhe o bairro; o app guarda o centro dele
+  arredondado. Não pede permissão de localização e nunca sabe onde a pessoa mora.
+- **Primeira visita.** Sem perfil, o app abre as boas-vindas: criar um perfil ou explorar na
+  hora com um perfil de exemplo. Guards de rota decidem para onde cada um vai.
 
 ## Progresso
 
@@ -73,7 +80,7 @@ npx nx run-many -t build,test,lint
 - [x] Domínio: perfis, compatibilidade e perfis fictícios
 - [x] Camada de dados local com Signals
 - [x] Deck com swipe, filtros e ordem por compatibilidade
-- [ ] Perfil e onboarding
+- [x] Perfil e onboarding
 - [ ] Matches
 - [ ] PWA
 - [ ] Extras: backend real, e2e, deploy

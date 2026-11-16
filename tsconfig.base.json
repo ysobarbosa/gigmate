@@ -22,6 +22,9 @@
       "@gigmate/musicians/ui": ["./libs/musicians/ui/src/index.ts"],
       "@gigmate/musicians/feature-deck": [
         "./libs/musicians/feature-deck/src/index.ts"
+      ],
+      "@gigmate/musicians/feature-profile": [
+        "./libs/musicians/feature-profile/src/index.ts"
       ]
     }
   },

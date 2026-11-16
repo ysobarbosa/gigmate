@@ -34,6 +34,11 @@ export type {
   CompatibilityOptions,
 } from './lib/compatibility';
 export {
+  NEIGHBORHOOD_NAMES,
+  neighborhoodLocation,
+  PROFILE_LIMITS,
+} from './lib/neighborhoods';
+export {
   DEFAULT_FILTER_RADIUS_KM,
   defaultFilters,
   matchesFilters,

@@ -1,6 +1,27 @@
 <header class="shell">
-  <h1>{{ title }}</h1>
-  <p>Encontre quem falta na sua banda</p>
+  <div>
+    <h1>{{ title }}</h1>
+    <p>Encontre quem falta na sua banda</p>
+  </div>
+  @if (viewer.hasProfile()) {
+    <nav aria-label="Principal">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Descobrir
+      </a>
+      <a
+        routerLink="/perfil"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+      >
+        Meu perfil
+      </a>
+    </nav>
+  }
 </header>
 <main>
   <router-outlet />

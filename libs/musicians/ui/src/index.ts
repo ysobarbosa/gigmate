@@ -12,6 +12,7 @@ export {
   WEEKDAY_LABELS,
 } from './lib/labels';
 export { Avatar } from './lib/avatar/avatar';
+export { AvailabilityGrid } from './lib/availability-grid/availability-grid';
 export { ChipSelect } from './lib/chip-select/chip-select';
 export { MusicianCard } from './lib/musician-card/musician-card';
 export { FLING_MS, Swipeable } from './lib/swipeable/swipeable';

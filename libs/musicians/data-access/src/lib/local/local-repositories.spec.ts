@@ -4,6 +4,7 @@ import {
   wouldLikeBack,
 } from '@gigmate/musicians/domain';
 import { ProfilesRepository, SwipesRepository } from '../ports';
+import { createMemoryStorage } from '../storage';
 import { setupLocalData, valueOf } from '../testing';
 import { DEMO_VIEWER } from './demo-viewer';
 import { LocalProfilesRepository } from './local-profiles-repository';
@@ -38,13 +39,13 @@ describe('LocalProfilesRepository', () => {
     expect(await valueOf(repo().listCandidates())).toEqual(fakes);
   });
 
-  it('returns the demo viewer until one is saved', async () => {
-    setupLocalData();
-    expect(await valueOf(repo().getViewer())).toEqual(DEMO_VIEWER);
+  it('has no viewer before onboarding', async () => {
+    setupLocalData(createMemoryStorage());
+    expect(await valueOf(repo().getViewer())).toBeNull();
   });
 
   it('persists the saved viewer across reloads', async () => {
-    const storage = setupLocalData();
+    const storage = setupLocalData(createMemoryStorage());
     const edited = { ...DEMO_VIEWER, name: 'Rafa' };
     await valueOf(repo().saveViewer(edited));
 
@@ -57,6 +58,13 @@ describe('LocalSwipesRepository', () => {
   const repo = () => TestBed.inject(SwipesRepository);
 
   beforeEach(() => setupLocalData());
+
+  it('refuses to swipe before the viewer has a profile', async () => {
+    setupLocalData(createMemoryStorage());
+    await expect(valueOf(repo().swipe(likesBack.id, 'like'))).rejects.toThrow(
+      'Create a profile before swiping',
+    );
+  });
 
   it('matches when liking someone who likes back', async () => {
     const { match } = await valueOf(repo().swipe(likesBack.id, 'like'));

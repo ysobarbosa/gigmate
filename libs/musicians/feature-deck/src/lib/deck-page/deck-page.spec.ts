@@ -5,6 +5,7 @@ import {
   DeckStore,
   KEY_VALUE_STORAGE,
   LOCAL_LATENCY_MS,
+  ProfilesRepository,
   provideLocalMusiciansData,
 } from '@gigmate/musicians/data-access';
 import { wouldLikeBack } from '@gigmate/musicians/domain';
@@ -19,6 +20,8 @@ function setup() {
       { provide: LOCAL_LATENCY_MS, useValue: 0 },
     ],
   });
+  // An onboarded user (latency 0 keeps the save synchronous).
+  TestBed.inject(ProfilesRepository).saveViewer(DEMO_VIEWER).subscribe();
   const fixture = TestBed.createComponent(DeckPage);
   const store = TestBed.inject(DeckStore);
   const el: HTMLElement = fixture.nativeElement;

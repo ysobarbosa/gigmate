@@ -38,6 +38,7 @@ export class LocalSwipesRepository extends SwipesRepository {
       this.profiles.listCandidates(),
     ]).pipe(
       map(([viewer, candidates]) => {
+        if (!viewer) throw new Error('Create a profile before swiping');
         const target = candidates.find((profile) => profile.id === targetId);
         if (!target) throw new Error(`Unknown profile: ${targetId}`);
 
