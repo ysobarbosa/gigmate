@@ -45,11 +45,21 @@ npx nx run-many -t build,test,lint
   "cenas" de gêneros e rotinas de horário realistas, para a compatibilidade ter o que encontrar.
   Um perfil fictício curte de volta quando a nota passa de 35 e ele procura o seu instrumento.
 
+- **Portas e adaptadores.** `libs/musicians/data-access` define as portas
+  (`ProfilesRepository`, `SwipesRepository`) como classes abstratas, que servem de tipo e de
+  token de injeção. O adaptador local entra no app por uma linha no `app.config.ts`
+  (`provideLocalMusiciansData()`); sem ela, o app falha na injeção em vez de cair num padrão
+  escondido. O match dos perfis fictícios é decidido no adaptador, onde um servidor decidiria.
+- **Deck com Signals e swipe otimista.** O `DeckStore` guarda o estado num único `signal` e
+  expõe só `computed`. A carta sai do deck na hora do swipe e volta, com aviso, se salvar falhar.
+  Os salvamentos vão em fila (`concatMap`), na ordem dos swipes. Uma latência artificial de
+  300 ms deixa os estados de carregamento visíveis na demo.
+
 ## Progresso
 
 - [x] Workspace Nx + app Angular com shell mínimo
 - [x] Domínio: perfis, compatibilidade e perfis fictícios
-- [ ] Camada de dados local com Signals
+- [x] Camada de dados local com Signals
 - [ ] Deck com swipe, filtros e ordem por compatibilidade
 - [ ] Perfil e onboarding
 - [ ] Matches

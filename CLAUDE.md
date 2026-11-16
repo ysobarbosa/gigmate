@@ -53,7 +53,14 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
    não buildable, jest em ambiente node, tags `scope:musicians,type:domain`). Tipos derivados
    de arrays `const`, `distanceKm`/`approximateLocation`, `compatibility` (simétrica, 0 a 100),
    `wouldLikeBack` (limite 35) e `generateFakeMusicians` (60 perfis em SP, semente 42). 101 testes.
-3. Camada de dados local: interfaces, adaptador `localStorage`, stores com Signals.
+3. Camada de dados local (concluída): `libs/musicians/data-access` (`@nx/angular:library`, tags
+   `scope:musicians,type:data-access`). Portas `ProfilesRepository`/`SwipesRepository` (classes
+   abstratas), adaptadores `Local*` (`@Service({ autoProvided: false })`) ligados por
+   `provideLocalMusiciansData()` no `app.config.ts`. `KEY_VALUE_STORAGE` (localStorage com
+   fallback em memória), `LOCAL_LATENCY_MS` (300; 0 nos testes = síncrono). `DeckStore` global
+   (`cards` ordenados por nota, swipe otimista, `lastMatch`). `DEMO_VIEWER`: guitarrista que
+   procura baterista. Página temporária `apps/gigmate/src/app/deck/deck-page` (lista + botões).
+   29 testes na lib; mutações `exhaustMap`→`mergeMap` e "sem rollback" pegas.
 4. Deck: swipe (pointer events), filtros, ordem por compatibilidade.
 5. Perfil e onboarding em etapas.
 6. Matches: like mútuo, tela de matches, detalhe com amostras.
@@ -80,6 +87,15 @@ A usuária é Pleno/Sênior e quer APRENDER: o processo importa tanto quanto o r
   npx ts-node --transpile-only -O '{"module":"commonjs","moduleResolution":"node","ignoreDeprecations":"6.0"}' arquivo.ts
   ```
 
+- Prettier: `.prettierrc` tem override `*.html` → parser `angular`. Sem ele, o Prettier formata
+  templates como HTML comum e embaralha `@if`/`@for`.
+- Toda tag `type:*` nova precisa de regra em `depConstraints`, senão o lint bloqueia o projeto
+  ("A project without tags matching at least one constraint...").
+- Testes zoneless: sem `fakeAsync`. Com `LOCAL_LATENCY_MS = 0` os adaptadores são síncronos.
+- No navegador, o DOM atualiza num frame depois do clique: medir após ~50 ms, não no mesmo tick.
+
 ## Dev server
 
 `.claude/launch.json` (local) define `gigmate` (`npx.cmd nx serve gigmate`, porta 4200).
+Numa sessão aberta no `enterprise`, o preview lê o launch.json de lá: entrada `gigmate` com
+`cmd.exe /c "cd /d ..\gigmate && npx nx serve gigmate --port 4300"`, porta 4300.

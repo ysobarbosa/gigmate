@@ -31,6 +31,23 @@ export default [
               onlyDependOnLibsWithTags: [],
             },
             {
+              sourceTag: 'type:feature',
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:ui',
+                'type:data-access',
+                'type:domain',
+              ],
+            },
+            {
+              sourceTag: 'type:ui',
+              onlyDependOnLibsWithTags: ['type:ui', 'type:domain'],
+            },
+            {
+              sourceTag: 'type:data-access',
+              onlyDependOnLibsWithTags: ['type:data-access', 'type:domain'],
+            },
+            {
               sourceTag: 'type:domain',
               onlyDependOnLibsWithTags: ['type:domain'],
               // The domain is plain TypeScript: no framework, no streams.
@@ -54,5 +71,12 @@ export default [
     ],
     // Override or add rules here
     rules: {},
+  },
+  {
+    // In specs, `find(...)!` on known fixtures is fine: a miss fails the test anyway.
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
+    },
   },
 ];
